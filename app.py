@@ -1,7 +1,6 @@
 import streamlit as st
 from google import genai
 from google.genai import types
-import time
 
 # 1. CẤU HÌNH TRUY XUẤT CHÌA KHÓA AI BẢO MẬT
 if "GEMINI_API_KEY" in st.secrets:
@@ -9,7 +8,7 @@ if "GEMINI_API_KEY" in st.secrets:
 else:
     st.error("Chưa cấu hình API Key trong mục Secrets của hệ thống máy chủ.")
 
-# MẸO CÔNG NGHỆ CAO: DÙNG CACHE ĐỂ KHÓA FILE HUẤN LUYỆN VÀO RAM, TĂNG TỐC 10 LẦN
+# MẸO CÔNG NGHỆ CAO: CACHE CỐ ĐỊNH FILE TÀI LIỆU VÀO RAM ĐỂ TRÁNH QUÉT LẠI NHIỀU LẦN
 @st.cache_resource
 def nap_kho_tri_thuc_sieu_toc():
     try:
@@ -53,7 +52,7 @@ st.sidebar.markdown("## 🧭 BẢNG ĐIỀU HƯỚNG")
 trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Trợ lý AI Thông Minh", "📚 Kho Tài Liệu Học Tập", "🔐 Cổng Kiểm Duyệt Admin"])
 
 # ==========================================
-# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH
+# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH (TỐI ƯU SIÊU TỐC)
 # ==========================================
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
     st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True)
@@ -117,23 +116,22 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
         with st.chat_message("user"):
             st.markdown(user_display_message)
 
+        # ⚡ CẢI TIẾN THUẬT TOÁN: BẮN CHỮ SIÊU TỐC KHÔNG QUA VÒNG LẶP RERUN GIAO DIỆN
         with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            full_response = ""
-            
             try:
-                response_stream = client.models.generate_content_stream(
-                    model='gemini-3.8-flash',
-                    contents=ai_content_input,
-                    config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
-                )
-                
-                for chunk in response_stream:
-                    if chunk.text:
-                        full_response += chunk.text
-                        response_placeholder.markdown(full_response + " ▌")
-                    
-                response_placeholder.markdown(full_response)
+                # 1. Tạo hàm Generator bóc tách chữ từ luồng dữ liệu của Google
+                def generate_response_stream():
+                    response_stream = client.models.generate_content_stream(
+                        model='gemini-3.8-flash',  # Bản Flash 3.8 tối ưu phản hồi siêu tốc
+                        contents=ai_content_input,
+                        config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
+                    )
+                    for chunk in response_stream:
+                        if chunk.text:
+                            yield chunk.text
+
+                # 2. Sử dụng hàm st.write_stream chuẩn của Streamlit để in chữ mượt 100%
+                full_response = st.write_stream(generate_response_stream)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
                 st.error(f"Lỗi kết nối máy chủ AI: {str(e)}")
@@ -173,7 +171,7 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (THAY THẾ KIẾN TRÚC MỚI CHỐNG SAI LỀ 100%)
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
     st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
@@ -184,7 +182,27 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
         st.markdown("### 📥 DANH SÁCH TÀI LIỆU ĐANG CHỜ DUYỆT")
         
         if not st.session_state.danh_sach_cho:
-            st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
-        else:
-            # Thiết kế phẳng, không lồng khối 'with col' để triệt tiêu lỗi thụt lề vĩnh viễn
-            vi_tri_xoa = -1
+st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
+else:
+vi_tri_xoa = -1
+vi_tri_duyet = -1
+for i, doc in enumerate(st.session_state.danh_sach_cho):
+st.write(f"📁 Tên file: {doc['ten']} — Người gửi: {doc['nguoi_gui']}")
+col_btn1, col_btn2 = st.columns(2)
+with col_btn1:
+if st.button(f"✅ Duyệt tệp số {i+1}", key=f"duyet_{i}"):
+vi_tri_duyet = i
+with col_btn2:
+if st.button(f"❌ Từ chối tệp số {i+1}", key=f"xoa_{i}"):
+vi_tri_xoa = i
+st.markdown("---")
+if vi_tri_duyet != -1:
+item = st.session_state.danh_sach_cho.pop(vi_tri_duyet)
+item["trang_thai"] = "Đã phê duyệt"
+st.session_state.kho_tai_lieu.append(item)
+st.rerun()
+if vi_tri_xoa != -1:
+st.session_state.danh_sach_cho.pop(vi_tri_xoa)
+st.rerun()
+elif ma_pin != "":
+st.error("⚠️ Mã PIN xác thực quyền Quản trị viên không chính xác. Vui lòng thử lại.")
