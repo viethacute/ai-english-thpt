@@ -184,7 +184,7 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
             # Tạo một mảng bản sao danh sách để vòng lặp chạy mượt mà không dính lỗi chỉ mục
             danh_sach_tam = list(st.session_state.danh_sach_cho)
             
-                        for i, doc in enumerate(danh_sach_tam):
+            for i, doc in enumerate(danh_sach_tam):
                 st.write(f"📁 **Tên file:** {doc['ten']} — *Người gửi:* {doc['nguoi_gui']}")
                 
                 col_btn1, col_btn2 = st.columns(2)
