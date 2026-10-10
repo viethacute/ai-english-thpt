@@ -52,7 +52,7 @@ st.sidebar.markdown("## 🧭 BẢNG ĐIỀU HƯỚNG")
 trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Trợ lý AI Thông Minh", "📚 Kho Tài Liệu Học Tập", "🔐 Cổng Kiểm Duyệt Admin"])
 
 # ==========================================
-# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH (TỐI ƯU SIÊU TỐC)
+# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH
 # ==========================================
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
     st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True)
@@ -116,13 +116,11 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
         with st.chat_message("user"):
             st.markdown(user_display_message)
 
-        # ⚡ CẢI TIẾN THUẬT TOÁN: BẮN CHỮ SIÊU TỐC KHÔNG QUA VÒNG LẶP RERUN GIAO DIỆN
         with st.chat_message("assistant"):
             try:
-                # 1. Tạo hàm Generator bóc tách chữ từ luồng dữ liệu của Google
                 def generate_response_stream():
                     response_stream = client.models.generate_content_stream(
-                        model='gemini-3.8-flash',  # Bản Flash 3.8 tối ưu phản hồi siêu tốc
+                        model='gemini-3.8-flash',
                         contents=ai_content_input,
                         config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
                     )
@@ -130,7 +128,6 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                         if chunk.text:
                             yield chunk.text
 
-                # 2. Sử dụng hàm st.write_stream chuẩn của Streamlit để in chữ mượt 100%
                 full_response = st.write_stream(generate_response_stream)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
@@ -171,7 +168,7 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (ĐA VÁ LỖI THỤT LỀ 100%)
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
     st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
@@ -182,27 +179,23 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
         st.markdown("### 📥 DANH SÁCH TÀI LIỆU ĐANG CHỜ DUYỆT")
         
         if not st.session_state.danh_sach_cho:
-st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
-else:
-vi_tri_xoa = -1
-vi_tri_duyet = -1
-for i, doc in enumerate(st.session_state.danh_sach_cho):
-st.write(f"📁 Tên file: {doc['ten']} — Người gửi: {doc['nguoi_gui']}")
-col_btn1, col_btn2 = st.columns(2)
-with col_btn1:
-if st.button(f"✅ Duyệt tệp số {i+1}", key=f"duyet_{i}"):
-vi_tri_duyet = i
-with col_btn2:
-if st.button(f"❌ Từ chối tệp số {i+1}", key=f"xoa_{i}"):
-vi_tri_xoa = i
-st.markdown("---")
-if vi_tri_duyet != -1:
-item = st.session_state.danh_sach_cho.pop(vi_tri_duyet)
-item["trang_thai"] = "Đã phê duyệt"
-st.session_state.kho_tai_lieu.append(item)
-st.rerun()
-if vi_tri_xoa != -1:
-st.session_state.danh_sach_cho.pop(vi_tri_xoa)
-st.rerun()
-elif ma_pin != "":
-st.error("⚠️ Mã PIN xác thực quyền Quản trị viên không chính xác. Vui lòng thử lại.")
+            st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
+        else:
+            # Tạo một mảng bản sao danh sách để vòng lặp chạy mượt mà không dính lỗi chỉ mục
+            danh_sach_tam = list(st.session_state.danh_sach_cho)
+            
+                        for i, doc in enumerate(danh_sach_tam):
+                st.write(f"📁 **Tên file:** {doc['ten']} — *Người gửi:* {doc['nguoi_gui']}")
+                
+                col_btn1, col_btn2 = st.columns(2)
+                with col_btn1:
+                    if st.button(f"✅ Duyệt file {i+1}", key=f"duyet_{i}"):
+                        item = st.session_state.danh_sach_cho.pop(i)
+                        item["trang_thai"] = "Đã phê duyệt"
+                        st.session_state.kho_tai_lieu.append(item)
+                        st.rerun()
+                with col_btn2:
+                    if st.button(f"❌ Từ chối file {i+1}", key=f"xoa_{i}"):
+                        st.session_state.danh_sach_cho.pop(i)
+                        st.rerun()
+                st.markdown("---")
