@@ -188,4 +188,4 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
         else:
             for i, doc in enumerate(st.session_state.danh_sach_cho):
                 col_d1, col_d2, col_d3 = st.columns(3)
-                with col_d1:
+            with col_d1:
