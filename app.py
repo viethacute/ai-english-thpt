@@ -168,13 +168,13 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (MÃ PIN MỚI ĐÃ CĂN CHUẨN TAB THỤT LỀ)
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (ĐÃ SỬA CHUẨN KHỐI LỆNH)
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
     st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
     ma_pin = st.text_input("Nhập mã PIN xác thực quyền Quản trị viên (Admin):", type="password")
     
-    if ma_pin == "0601":  # Đã đổi sang mã PIN mới của bạn và căn lề hoàn hảo
+    if ma_pin == "0601":
         st.success("🔓 Xác thực thành công! Quyền Quản trị viên đã được kích hoạt.")
         st.markdown("### 📥 DANH SÁCH TÀI LIỆU ĐANG CHỜ DUYỆT")
         
@@ -184,3 +184,4 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
             for i, doc in enumerate(st.session_state.danh_sach_cho):
                 col_d1, col_d2, col_d3 = st.columns(3)
                 with col_d1:
+                    st.markdown(f"**Tên file:** {doc['ten']} <br> <small>Người gửi: {doc['nguoi_gui']}</small>", unsafe_allow_html=True)
