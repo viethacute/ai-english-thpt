@@ -9,6 +9,17 @@ if "GEMINI_API_KEY" in st.secrets:
 else:
     st.error("Chưa cấu hình API Key trong mục Secrets của hệ thống máy chủ.")
 
+# MẸO CÔNG NGHỆ CAO: DÙNG CACHE ĐỂ KHÓA FILE HUẤN LUYỆN VÀO RAM, TĂNG TỐC 10 LẦN
+@st.cache_resource
+def nap_kho_tri_thuc_siêu_tốc():
+    try:
+        with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "Hệ thống đang sử dụng cơ sở dữ liệu mặc định."
+
+du_lieu_huan_luyen = nap_kho_tri_thuc_siêu_tốc()
+
 # 2. KHỞI TẠO BỘ NHỚ LƯU TRỮ TÀI LIỆU TẠM THỜI (Hệ thống phê duyệt)
 if "kho_tai_lieu" not in st.session_state:
     st.session_state.kho_tai_lieu = [
@@ -17,13 +28,6 @@ if "kho_tai_lieu" not in st.session_state:
     ]
 if "danh_sach_cho" not in st.session_state:
     st.session_state.danh_sach_cho = []
-
-# Đọc tài liệu huấn luyện bổ sung từ file text
-try:
-    with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
-        du_lieu_huan_luyen = f.read()
-except FileNotFoundError:
-    du_lieu_huan_luyen = "Hệ thống đang sử dụng cơ sở dữ liệu mặc định."
 
 prompt_he_thong = (
     "Bạn là Hệ sinh thái Trợ lý AI Tiếng Anh toàn diện dành cho học sinh THPT.\n"
@@ -125,8 +129,9 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                 )
                 
                 for chunk in response_stream:
-                    full_response += chunk.text
-                    response_placeholder.markdown(full_response + " ▌")
+                    if chunk.text:
+                        full_response += chunk.text
+                        response_placeholder.markdown(full_response + " ▌")
                     
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
@@ -168,10 +173,10 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (ĐÃ SỬA CHUẨN KHỐI LỆNH)
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
-    st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIểm DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
     ma_pin = st.text_input("Nhập mã PIN xác thực quyền Quản trị viên (Admin):", type="password")
     
     if ma_pin == "0601":
@@ -184,4 +189,4 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
             for i, doc in enumerate(st.session_state.danh_sach_cho):
                 col_d1, col_d2, col_d3 = st.columns(3)
                 with col_d1:
-                    st.markdown(f"**Tên file:** {doc['ten']} <br> <small>Người gửi: {doc['nguoi_gui']}</small>", unsafe_allow_html=True)
+
