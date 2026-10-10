@@ -11,14 +11,14 @@ else:
 
 # MẸO CÔNG NGHỆ CAO: DÙNG CACHE ĐỂ KHÓA FILE HUẤN LUYỆN VÀO RAM, TĂNG TỐC 10 LẦN
 @st.cache_resource
-def nap_kho_tri_thuc_siêu_tốc():
+def nap_kho_tri_thuc_sieu_toc():
     try:
         with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         return "Hệ thống đang sử dụng cơ sở dữ liệu mặc định."
 
-du_lieu_huan_luyen = nap_kho_tri_thuc_siêu_tốc()
+du_lieu_huan_luyen = nap_kho_tri_thuc_sieu_toc()
 
 # 2. KHỞI TẠO BỘ NHỚ LƯU TRỮ TÀI LIỆU TẠM THỜI (Hệ thống phê duyệt)
 if "kho_tai_lieu" not in st.session_state:
@@ -173,10 +173,10 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (THAY THẾ KIẾN TRÚC MỚI CHỐNG SAI LỀ 100%)
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
-    st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIểm DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
     ma_pin = st.text_input("Nhập mã PIN xác thực quyền Quản trị viên (Admin):", type="password")
     
     if ma_pin == "0601":
@@ -186,6 +186,5 @@ elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
         if not st.session_state.danh_sach_cho:
             st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
         else:
-            for i, doc in enumerate(st.session_state.danh_sach_cho):
-                col_d1, col_d2, col_d3 = st.columns(3)
-            with col_d1:
+            # Thiết kế phẳng, không lồng khối 'with col' để triệt tiêu lỗi thụt lề vĩnh viễn
+            vi_tri_xoa = -1
