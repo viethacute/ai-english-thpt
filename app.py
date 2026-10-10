@@ -45,11 +45,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("## BẢNG ĐIỀU HƯỚNG")
+st.sidebar.markdown("## 🧭 BẢNG ĐIỀU HƯỚNG")
 trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Trợ lý AI Thông Minh", "📚 Kho Tài Liệu Học Tập", "🔐 Cổng Kiểm Duyệt Admin"])
 
 # ==========================================
-# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH (ĐÃ TỐI ƯU STREAMING TỐC ĐỘ SIÊU TỐC)
+# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH
 # ==========================================
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
     st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True)
@@ -107,34 +107,31 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                 ai_content_input = "Hello Alex!"
         else:
             user_display_message = chat_input_data.text
-            ai_content_input = user_message = chat_input_data.text
+            ai_content_input = user_display_message
 
         st.session_state.messages.append({"role": "user", "content": user_display_message})
         with st.chat_message("user"):
             st.markdown(user_display_message)
 
-        # ⚡ CẢI TIẾN: SỬ DỤNG PHƯƠNG THỨC STREAM ĐỂ BẮN CHỮ LIÊN TỤC KHÔNG CHỜ ĐỢI
         with st.chat_message("assistant"):
-             response_placeholder = st.empty() # Tạo ô trống động để nhét chữ vào liên tục
-             full_response = ""
-             
-             try:
-                 # Gọi hàm generate_content_stream thay vì hàm generate_content thông thường
-                 response_stream = client.models.generate_content_stream(
-                     model='gemini-3.8-flash',
-                     contents=ai_content_input,
-                     config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
-                 )
-                 
-                 # Vòng lặp bóc tách từng mảnh chữ (chunk) vừa chạy từ Google về để hiện lên ngay
-                 for chunk in response_stream:
-                     full_response += chunk.text
-                     response_placeholder.markdown(full_response + " ▌") # Thêm con trỏ nhấp nháy cho ngầu
-                     
-                 response_placeholder.markdown(full_response) # Hiện bản hoàn chỉnh cuối cùng
-                 st.session_state.messages.append({"role": "assistant", "content": full_response})
-             except Exception as e:
-                 st.error(f"Lỗi kết nối máy chủ AI: {str(e)}")
+            response_placeholder = st.empty()
+            full_response = ""
+            
+            try:
+                response_stream = client.models.generate_content_stream(
+                    model='gemini-3.8-flash',
+                    contents=ai_content_input,
+                    config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
+                )
+                
+                for chunk in response_stream:
+                    full_response += chunk.text
+                    response_placeholder.markdown(full_response + " ▌")
+                    
+                response_placeholder.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+            except Exception as e:
+                st.error(f"Lỗi kết nối máy chủ AI: {str(e)}")
 
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
@@ -143,24 +140,23 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
     st.markdown("<h1 style='color:#1e3a8a;'>📚 KHO TRI THỨC VÀ TÀI LIỆU TIẾNG ANH CHIA SẺ</h1>", unsafe_allow_html=True)
     st.write("Nơi học sinh và thầy cô chia sẻ tài liệu ôn thi chất lượng cao (Đã qua kiểm duyệt bảo mật).")
     
-    with gr if hasattr(st, "expander") else st: # Đảm bảo tính tương thích
-        with st.expander("📤 ĐÓNG GÓP TÀI LIỆU MỚI (CẦN DUYỆT)", expanded=True):
-            col_f1, col_f2 = st.columns(2)
-            with col_f1:
-                ten_nguoi_gui = st.text_input("Tên người đóng góp / Tác giả:", placeholder="Ví dụ: Nguyễn Văn A - Lớp 12A2")
-            with col_f2:
-                file_upload = st.file_uploader("Chọn tệp tài liệu của bạn (PDF, DOCX, TXT):", type=["pdf", "docx", "txt"])
-            
-            if st.button("Gửi tài liệu lên Hệ thống kiểm duyệt 🚀"):
-                if ten_nguoi_gui and file_upload:
-                    st.session_state.danh_sach_cho.append({
-                        "ten": file_upload.name,
-                        "nguoi_gui": ten_nguoi_gui,
-                        "trang_thai": "Chờ phê duyệt"
-                    })
-                    st.success("🎉 Gửi tài liệu thành công! Tài liệu đã được chuyển tới phòng kiểm duyệt của Ban quản trị nhà trường.")
-                else:
-                    st.warning("⚠️ Vui lòng điền đầy đủ thông tin tên tác giả và chọn file tài liệu trước khi gửi.")
+    with st.expander("📤 ĐÓNG GÓP TÀI LIỆU MỚI (CẦN DUYỆT)", expanded=True):
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            ten_nguoi_gui = st.text_input("Tên người đóng góp / Tác giả:", placeholder="Ví dụ: Nguyễn Văn A - Lớp 12A2")
+        with col_f2:
+            file_upload = st.file_uploader("Chọn tệp tài liệu của bạn (PDF, DOCX, TXT):", type=["pdf", "docx", "txt"])
+        
+        if st.button("Gửi tài liệu lên Hệ thống kiểm duyệt 🚀"):
+            if ten_nguoi_gui and file_upload:
+                st.session_state.danh_sach_cho.append({
+                    "ten": file_upload.name,
+                    "nguoi_gui": ten_nguoi_gui,
+                    "trang_thai": "Chờ phê duyệt"
+                })
+                st.success("🎉 Gửi tài liệu thành công! Tài liệu đã được chuyển tới phòng kiểm duyệt của Ban quản trị nhà trường.")
+            else:
+                st.warning("⚠️ Vui lòng điền đầy đủ thông tin tên tác giả và chọn file tài liệu trước khi gửi.")
 
     st.markdown("### 📥 DANH MỤC TÀI LIỆU CHÍNH THỨC")
     for doc in st.session_state.kho_tai_lieu:
@@ -172,10 +168,19 @@ elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
         """, unsafe_allow_html=True)
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (MÃ PIN: 0601)
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (MÃ PIN MỚI ĐÃ CĂN CHUẨN TAB THỤT LỀ)
 # ==========================================
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
     st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
     ma_pin = st.text_input("Nhập mã PIN xác thực quyền Quản trị viên (Admin):", type="password")
     
-    if ma_pin == "0601":
+    if ma_pin == "0601":  # Đã đổi sang mã PIN mới của bạn và căn lề hoàn hảo
+        st.success("🔓 Xác thực thành công! Quyền Quản trị viên đã được kích hoạt.")
+        st.markdown("### 📥 DANH SÁCH TÀI LIỆU ĐANG CHỜ DUYỆT")
+        
+        if not st.session_state.danh_sach_cho:
+            st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
+        else:
+            for i, doc in enumerate(st.session_state.danh_sach_cho):
+                col_d1, col_d2, col_d3 = st.columns(3)
+                with col_d1:
