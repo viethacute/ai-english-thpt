@@ -285,20 +285,19 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                     try:
                         start_time = time.perf_counter()
 
-                        response = client.models.generate_content(
-                            model="gemini-3.8-flash",
-                            contents=ai_content_input,
-                            config=types.GenerateContentConfig(
-                                system_instruction=huong_dan_day_du,
-                                max_output_tokens=450,
-                                temperature=0.5,
-                            ),
-                        )
+                        with st.spinner("E-HERO AI đang suy nghĩ..."):
+                            response = client.models.generate_content(
+                                model="gemini-3.8-flash",
+                                contents=ai_content_input,
+                                config=types.GenerateContentConfig(
+                                    system_instruction=huong_dan_day_du,
+                                    max_output_tokens=450,
+                                    temperature=0.5,
+                                ),
+                           )
 
                         elapsed = time.perf_counter() - start_time
-
-                        st.caption(
-                            f"⏱️ Thời gian xử lý: {elapsed:.2f} giây"
+                        st.caption(f"⏱️ Thời gian gọi Gemini: {elapsed:.2f} giây")
                         )
                         break
 
