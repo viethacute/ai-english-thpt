@@ -286,7 +286,7 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                         start_time = time.perf_counter()
 
                         response = client.models.generate_content(
-                            model="gemini-2.5-flash",
+                            model="gemini-3.8-flash",
                             contents=ai_content_input,
                             config=types.GenerateContentConfig(
                                 system_instruction=huong_dan_day_du,
