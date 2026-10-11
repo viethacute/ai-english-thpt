@@ -196,8 +196,7 @@ with st.chat_message("assistant"):
 
     except Exception as e:
         st.error(f"Không thể xử lý yêu cầu: {e}")
-              
-            except APIError as e:
+                except APIError as e:
                 status = getattr(e, "code", None)
 
                 if status == 503 and attempt < 2:
