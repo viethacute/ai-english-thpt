@@ -137,95 +137,69 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
 
        
 with st.chat_message("assistant"):
-    try:
-        van_ban_placeholder = st.empty()
-        van_ban_placeholder.markdown("*AI đang xử lý...*")
+   
+        if ai_content_input is not None:
+            with st.chat_message("assistant"):
+                van_ban_placeholder = st.empty()
+                van_ban_placeholder.markdown("*AI đang xử lý...*")
 
-        response = None
+                response = None
 
-        for attempt in range(3):
-            try:
-                start_time = time.perf_counter()
+                for attempt in range(3):
+                    try:
+                        start_time = time.perf_counter()
 
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=ai_content_input,
-                    config=types.GenerateContentConfig(
-                        system_instruction=huong_dan_day_du,
-                        response_modalities=["TEXT"],
-                        max_output_tokens=450,
-                        temperature=0.5,
-                    ),
-                )
+                        response = client.models.generate_content(
+                            model="gemini-2.5-flash",
+                            contents=ai_content_input,
+                            config=types.GenerateContentConfig(
+                                system_instruction=huong_dan_day_du,
+                                max_output_tokens=450,
+                                temperature=0.5,
+                            ),
+                        )
 
-                elapsed = time.perf_counter() - start_time
-                st.caption(
-                    f"⏱️ Thời gian AI xử lý: {elapsed:.2f} giây"
-                )
-                break
+                        elapsed = time.perf_counter() - start_time
+                        st.caption(
+                            f"⏱️ Thời gian AI xử lý: {elapsed:.2f} giây"
+                        )
+                        break
 
-            except APIError as e:
-                status = getattr(e, "code", None)
+                    except APIError as e:
+                        status = getattr(e, "code", None)
 
-                if status == 503 and attempt < 2:
-                    time.sleep(2 ** (attempt + 1))
-                    continue
+                        if status == 503 and attempt < 2:
+                            time.sleep(2 ** (attempt + 1))
+                            continue
 
-                if status == 429:
-                    st.error(
-                        "API đang giới hạn tài nguyên hoặc quota."
+                        if status == 429:
+                            st.error(
+                                "API đang giới hạn tài nguyên hoặc quota. "
+                                "Hãy kiểm tra hạn mức sử dụng Gemini."
+                            )
+                        else:
+                            st.error(f"Gemini API gặp lỗi: {e}")
+
+                        response = None
+                        break
+
+                    except Exception as e:
+                        st.error(f"Không thể xử lý yêu cầu: {e}")
+                        response = None
+                        break
+
+                if response is not None:
+                    full_text_response = (
+                        response.text or "AI chưa tạo được câu trả lời."
                     )
-                else:
-                    st.error(f"Gemini API gặp lỗi: {e}")
 
-                response = None
-                break
+                    van_ban_placeholder.markdown(full_text_response)
 
-        if response is not None:
-            full_text_response = (
-                response.text
-                or "AI chưa tạo được câu trả lời."
-            )
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": full_text_response,
+                    })
 
-            van_ban_placeholder.markdown(full_text_response)
-
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": full_text_response,
-            })
-
-    except Exception as e:
-        st.error(f"Không thể xử lý yêu cầu: {e}")
-                
-              except APIError as e:
-                status = getattr(e, "code", None)
-
-                if status == 503 and attempt < 2:
-                    time.sleep(2 ** (attempt + 1))
-                    continue
-
-                if status == 429:
-                    st.error("API đang giới hạn tài nguyên hoặc quota.")
-                else:
-                    st.error(f"Gemini API gặp lỗi: {e}")
-
-                response = None
-                break
-
-        if response is not None:
-            full_text_response = (
-                response.text or "AI chưa tạo được câu trả lời."
-            )
-
-            van_ban_placeholder.markdown(full_text_response)
-
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": full_text_response,
-            })
-
-    except Exception as e:
-        st.error(f"Không thể xử lý yêu cầu: {e}")
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
