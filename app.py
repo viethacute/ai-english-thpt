@@ -180,10 +180,12 @@ with st.chat_message("assistant"):
                         else:
                             st.error(f"Gemini API gặp lỗi: {e}")
 
+                        response = None
                         break
 
                     except Exception as e:
                         st.error(f"Không thể xử lý yêu cầu: {e}")
+                        response = None
                         break
 
                 if response is not None:
