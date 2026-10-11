@@ -1,1 +1,96 @@
+======================================================================
+KHO TRI THỨC CHUYÊN SÂU: NGỮ PHÁP TIẾNG ANH TRỌNG TÂM THPT QUỐC GIA
+HỆ THỐNG ĐƯỢC CẤU HÌNH DÀNH RIÊNG CHO NỀN TẢNG E-HERO AI PLATFORM
+======================================================================
 
+CHỦ ĐỀ 1: CÁC THÌ TRỌNG TÂM TRONG ĐỀ THI (TENSES)
+
+1. THÌ HIỆN TẠI HOÀN THÀNH (PRESENT PERFECT)
+- Công thức: S + have/has + V3/V-ed
+- Cách dùng chính trong đề thi: Diễn tả hành động xảy ra trong quá khứ nhưng kết quả còn lưu lại ở hiện tại, hoặc hành động vừa mới xảy ra (đi kèm với just, already, yet). Diễn tả trải nghiệm (ever, never).
+- Dấu hiệu nhận biết: since + mốc thời gian, for + khoảng thời gian, so far, up to now, up to the present, recently, lately.
+- Ví dụ minh họa:
+  + He has lived in Hanoi since 2018. (Anh ấy đã sống ở Hà Nội từ năm 2018).
+  + I have already finished my English homework. (Tôi đã hoàn thành xong bài tập tiếng Anh rồi).
+  + Have you ever traveled to Danang? (Bạn đã từng đi du lịch Đà Nẵng chưa?).
+  + She hasn't received the test results yet. (Cô ấy vẫn chưa nhận được kết quả bài kiểm tra).
+  + We have studied five English lessons so far. (Chúng tôi đã học được 5 bài tiếng Anh tính đến nay).
+
+2. THÌ QUÁ KHỨ ĐƠN VÀ QUÁ KHỨ TIẾP DIỄN (PAST SIMPLE & PAST CONTINUOUS)
+- Cấu trúc kết hợp kinh điển: Diễn tả một hành động đang xảy ra trong quá khứ (Quá khứ tiếp diễn) thì có một hành động khác xen vào (Quá khứ đơn).
+- Công thức kết hợp: S + was/were + V-ing + WHEN + S + V2/V-ed HOẶC WHILE + S + was/were + V-ing, S + V2/V-ed.
+- Ví dụ minh họa:
+  + When the teacher entered the classroom, the students were talking noisily. (Khi giáo viên bước vào lớp, các học sinh đang nói chuyện ồn ào).
+  + I was doing my English exercise while my brother was playing games. (Tôi đang làm bài tập tiếng Anh trong khi em trai tôi đang chơi game).
+  + The lights went out while we were having dinner. (Điện bị mất khi chúng tôi đang ăn tối).
+  + She broke her cup when she was washing the dishes. (Cô ấy làm vỡ cốc khi đang rửa bát).
+  + What were you doing when the phone rang yesterday? (Bạn đang làm gì khi điện thoại reo ngày hôm qua?).
+
+----------------------------------------------------------------------
+CHỦ ĐỀ 2: CÁC DẠNG CÂU ĐIỀU KIỆN (CONDITIONAL SENTENCES)
+
+1. CÂU ĐIỀU KIỆN LOẠI 1 (Có thể xảy ra ở hiện tại hoặc tương lai)
+- Công thức: If + S + V(hiện tại đơn), S + will/can/must + V(nguyên mẫu)
+- Ví dụ: If you study hard, you will pass the THPT National Exam. (Nếu bạn học hành chăm chỉ, bạn sẽ đỗ kỳ thi THPT Quốc gia).
+
+2. CÂU ĐIỀU KIỆN LOẠI 2 (Trái với thực tế ở hiện tại)
+- Công thức: If + S + V2/V-ed (To be chia là WERE cho tất cả các ngôi), S + would/could + V(nguyên mẫu)
+- Ví dụ: If I were you, I would focus more on English vocabulary. (Nếu tôi là bạn, tôi sẽ tập trung nhiều hơn vào từ vựng tiếng Anh).
+
+3. CÂU ĐIỀU KIỆN LOẠI 3 (Trái với thực tế trong quá khứ - Câu ăn điểm tuyệt đối)
+- Công thức: If + S + had + V3/V-ed, S + would/could + have + V3/V-ed
+- Ví dụ: If she had attended the IELTS workshop yesterday, she would have known the writing tips. (Nếu cô ấy tham gia buổi hội thảo IELTS ngày hôm qua, cô ấy đã biết các mẹo viết bài).
+
+----------------------------------------------------------------------
+CHỦ ĐỀ 3: CẤU TRÚC ĐẢO NGỮ NÂNG CAO (INVERSION)
+
+Đây là dạng câu hỏi phân hóa học sinh đạt điểm 9, 10 trong đề thi THPT Quốc gia.
+
+1. ĐẢO NGỮ VỚI TRẠNG TỪ PHỦ ĐỊNH (Hardly/Scarcely/No sooner)
+- Cấu trúc "Ngay khi... thì...":
+  + Hardly/Scarcely + had + S + V3/V-ed + WHEN + S + V2/V-ed
+  + No sooner + had + S + V3/V-ed + THAN + S + V2/V-ed
+- Ví dụ:
+  + Hardly had the student started his test when the power went out. (Ngay khi học sinh bắt đầu làm bài kiểm tra thì mất điện).
+  + No sooner had I opened the book than the teacher called my name. (Ngay khi tôi vừa mở sách ra thì giáo viên gọi tên tôi).
+
+2. ĐẢO NGỮ VỚI "NOT ONLY... BUT ALSO..."
+- Cấu trúc: Not only + Trợ động từ + S + V(nguyên mẫu), but + S + also + V...
+- Ví dụ: Not only is Alex good at English, but he is also professional at technology. (Alex không những giỏi tiếng Anh mà còn chuyên nghiệp về công nghệ).
+
+3. ĐẢO NGỮ VỚI ONLY AFTER VÀ ONLY WHEN
+- Cấu trúc: Only after/Only when + Mệnh đề 1 + Trợ động từ + S + V (Đảo ngữ ở mệnh đề thứ hai).
+- Ví dụ: Only after finishing all the practice tests did she go to sleep. (Chỉ sau khi hoàn thành tất cả các bài thi thử cô ấy mới đi ngủ).
+
+----------------------------------------------------------------------
+CHỦ ĐỀ 4: CÂU BỊ ĐỘNG ĐẶC BIỆT (ADVANCED PASSIVE VOICE)
+
+1. CÂU BỊ ĐỘNG VỚI CÁC ĐỘNG TỪ CHỈ QUAN ĐIỂM, Ý KIẾN (Say, think, believe, report, rumor...)
+- Cấu trúc chủ động: People say that + S + V
+- Cấu trúc bị động 1: It is said that + S + V
+- Cấu trúc bị động 2 (Nâng cao): S + is/are/am + said + TO + V (hoặc TO HAVE + V3/V-ed nếu hành động trong quá khứ).
+- Ví dụ:
+  + People believe that he is a talented teacher. -> It is believed that he is a talented teacher.
+  + He is believed to be a talented teacher. (Anh ấy được tin là một giáo viên tài năng).
+
+2. CÂU BỊ ĐỘNG TRUYỀN KHIẾN (Cấu trúc nhờ vả)
+- Cấu trúc chủ động: Have someone do something / Get someone to do something.
+- Cấu trúc bị động: HAVE / GET + SOMETHING + V3/V-ed (+ by someone)
+- Ví dụ:
+  + I will have the teacher correct my IELTS essay. -> I will have my IELTS essay corrected by the teacher. (Tôi sẽ nhờ giáo viên sửa bài luận IELTS của mình).
+
+----------------------------------------------------------------------
+CHỦ ĐỀ 5: MỆNH ĐỀ QUAN HỆ RÚT GỌN (REDUCED RELATIVE CLAUSES)
+
+1. RÚT GỌN DẠNG CHỦ ĐỘNG: Sử dụng V-ing khi đại từ quan hệ đóng vai trò chủ động.
+- Ví dụ gốc: The student who sits next to me is from Haiphong.
+- Rút gọn: The student sitting next to me is from Haiphong. (Học sinh ngồi cạnh tôi đến từ Hải Phòng).
+
+2. RÚT GỌN DẠNG BỊ ĐỘNG: Sử dụng V3/V-ed khi đại từ quan hệ đóng vai trò bị động.
+- Ví dụ gốc: The book which was published yesterday is very useful.
+- Rút gọn: The book published yesterday is very useful. (Cuốn sách được xuất bản ngày hôm qua rất hữu ích).
+
+3. RÚT GỌN VỚI CỤM DANH TỪ CHỈ SỰ SO SÁNH NHẤT HOẶC ONLY, LAST, FIRST: Sử dụng TO V.
+- Ví dụ gốc: He is the last person who left the classroom.
+- Rút gọn: He is the last person to leave the classroom. (Anh ấy là người cuối cùng rời khỏi lớp học).
+======================================================================
