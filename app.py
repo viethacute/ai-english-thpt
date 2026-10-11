@@ -291,7 +291,7 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                                 contents=ai_content_input,
                                 config=types.GenerateContentConfig(
                                     system_instruction=huong_dan_day_du,
-                                    max_output_tokens=450,
+                                    max_output_tokens=1200,
                                     temperature=0.5,
                                 ),
                            )
