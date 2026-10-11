@@ -298,7 +298,6 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
 
                         elapsed = time.perf_counter() - start_time
                         st.caption(f"⏱️ Thời gian gọi Gemini: {elapsed:.2f} giây")
-                        )
                         break
 
                     except APIError as e:
