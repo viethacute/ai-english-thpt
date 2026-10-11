@@ -199,7 +199,6 @@ with st.chat_message("assistant"):
                         "role": "assistant",
                         "content": full_text_response,
                     })
-
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
