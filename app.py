@@ -142,7 +142,7 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                 response = None
 
                 for attempt in range(3):
-                    try:
+            try:
                      
                 start_time = time.perf_counter()
 
