@@ -139,22 +139,27 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
             try:
                 van_ban_placeholder = st.empty()
                 van_ban_placeholder.markdown("*AI đang xử lý...*")
-
                 response = None
 
                 for attempt in range(3):
                     try:
-                        response = client.models.generate_content(
-                            model="gemini-3.8-flash",
-                            contents=ai_content_input,
-                            config=types.GenerateContentConfig(
-                                system_instruction=huong_dan_day_du,
-                                response_modalities=["TEXT"],
-                                max_output_tokens=500,
-                                temperature=0.5,
-),
+                        
+start_time = time.perf_counter()
 
-                            )
+response = client.models.generate_content(
+    model="gemini-3.8-flash",
+    contents=ai_content_input,
+    config=types.GenerateContentConfig(
+        system_instruction=huong_dan_day_du,
+        response_modalities=["TEXT"],
+        max_output_tokens=350,
+        temperature=0.5,
+    ),
+)
+
+elapsed = time.perf_counter() - start_time
+st.caption(f"⏱️ Thời gian AI xử lý: {elapsed:.2f} giây")
+
                         break
 
                     except APIError as e:
