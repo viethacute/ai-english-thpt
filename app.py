@@ -56,19 +56,21 @@ trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Tr�
 # ==========================================
 # CHỈNH SỬA VÀ THAY THẾ ĐOẠN XỬ LÝ CHAT Ở TRANG 1 TRONG FILE CỦA BẠN:
 
+# THAY THẾ ĐOẠN XỬ LÝ CHAT Ở TRANG 1 TRONG FILE CỦA BẠN BẰNG ĐOẠN CODE NÀY:
+
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
     st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True)
-    # ... (Giữ nguyên phần giao diện và từ khóa gợi ý của bạn) ...
+    # ... (Giữ nguyên phần giao diện và các từ khóa gợi ý ban đầu của bạn) ...
 
     # Khởi tạo bộ nhớ chat nếu chưa có
     if "messages" not in st.session_state:
         st.session_state.messages = []
         
-    # Hiển thị lịch sử chat chữ
+    # Hiển thị lịch sử chat
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-            # Nếu tin nhắn của trợ lý có kèm file âm thanh phản hồi, hiển thị trình phát
+            # Nếu tin nhắn trước đó của AI có chứa âm thanh, hiển thị lại trình phát audio
             if message["role"] == "assistant" and "audio" in message:
                 st.audio(message["audio"], format="audio/mp3")
 
@@ -79,63 +81,63 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
         user_display_message = ""
         ai_content_input = None
 
-        # Kiểm tra xem người dùng gửi âm thanh hay chữ
+        # Kiểm tra xem người dùng gửi âm thanh hay nhập chữ
         is_audio_file = hasattr(chat_input_data, 'audio') and chat_input_data.audio is not None
 
         if is_audio_file:
             user_display_message = "🎙️ *[Học sinh vừa gửi một đoạn ghi âm giọng nói]*"
             try:
                 audio_bytes = chat_input_data.audio.read()
-                # Chuyển đổi tệp tin để Gemini hiểu cấu trúc đa phương thức bản địa (Native Multimodal)
+                # Nạp dữ liệu âm thanh dạng Byte để gửi lên Gemini 3.8
                 ai_content_input = [
                     types.Part.from_bytes(data=audio_bytes, mime_type="audio/wav"),
-                    "Học sinh đang luyện nói tiếng Anh. Hãy nghe, sửa lỗi phát âm/ngữ pháp và phản hồi lại bằng giọng nói."
+                    "Học sinh đang luyện nói tiếng Anh. Hãy nghe kỹ, nhận xét ngắn gọn lỗi phát âm/ngữ pháp và phản hồi lại bằng cả văn bản và giọng nói."
                 ]
             except Exception as e:
-                ai_content_input = "Hello"
+                ai_content_input = "Hello Alex!"
         else:
             user_display_message = chat_input_data.text
             ai_content_input = user_display_message
 
-        # Lưu và hiển thị câu hỏi của User
+        # Lưu và hiển thị câu hỏi của User lên màn hình
         st.session_state.messages.append({"role": "user", "content": user_display_message})
         with st.chat_message("user"):
             st.markdown(user_display_message)
 
-        # XỬ LÝ PHẢN HỒI TỪ GEMINI (BẬT TÍNH NĂNG ĐẦU RA GIỌNG NÓI)
+        # XỬ LÝ PHẢN HỒI TỪ GEMINI 3.8 FLASH (YÊU CẦU ĐẦU RA CÓ GIỌNG NÓI)
         with st.chat_message("assistant"):
             try:
-                # Tạo khu vực hiển thị text stream trước
+                # Tạo khu vực hiển thị chữ tạm thời để tạo cảm giác phản hồi nhanh
                 van_ban_placeholder = st.empty()
+                van_ban_placeholder.markdown("*Đang xử lý dữ liệu và tạo giọng nói...*")
                 
-                # Gọi API với cấu hình yêu cầu cả TEXT và AUDIO ở đầu ra
-                # Chuyển sang mô hình gemini-2.5-flash hoặc gemini-2.0-flash tối ưu tốt hơn cho Audio Turn-based
+                # GỌI API GEMINI 3.8 FLASH CHÍNH XÁC THEO KHUYẾN NGHỊ CỦA GOOGLE
                 response = client.models.generate_content(
-                    model='gemini-2.5-flash', 
+                    model='gemini-3.8-flash', # Đã cập nhật tên mô hình chuẩn xác [1]
                     contents=ai_content_input,
                     config=types.GenerateContentConfig(
                         system_instruction=prompt_he_thong,
-                        # YÊU CẦU QUAN TRỌNG: Trả về cả chữ viết và âm thanh nói
+                        # THAM SỐ QUAN TRỌNG: Ép mô hình trả về cả văn bản TEXT và file âm thanh AUDIO
                         response_modalities=["TEXT", "AUDIO"] 
                     )
                 )
 
-                # Lấy văn bản trả về hiển thị lên màn hình
-                full_text_response = response.text if response.text else "Mình đã nghe rõ phản hồi của bạn!"
+                # Trích xuất văn bản trả về
+                full_text_response = response.text if response.text else "Mình đã nghe và xử lý đoạn ghi âm của bạn!"
                 van_ban_placeholder.markdown(full_text_response)
 
-                # Tìm và trích xuất mảng Byte âm thanh từ gói phản hồi của Gemini
+                # Tìm và trích xuất mảng Byte âm thanh (Audio chunks) ẩn bên trong kết quả trả về
                 audio_data_bytes = None
-                for part in response.candidates[0].content.parts:
-                    # Kiểm tra phần dữ liệu nhị phân chứa audio ẩn bên trong kết quả
-                    if part.inline_data and "audio" in part.inline_data.mime_type:
-                        audio_data_bytes = part.inline_data.data
-                        break
+                if response.candidates and response.candidates[0].content:
+                    for part in response.candidates[0].content.parts:
+                        if part.inline_data and "audio" in part.inline_data.mime_type:
+                            audio_data_bytes = part.inline_data.data
+                            break
 
-                # Nếu có dữ liệu âm thanh trả về từ AI, tiến hành phát ngay trên giao diện
+                # Nếu có dữ liệu âm thanh từ AI, xuất trình phát trên giao diện web ngay lập tức
                 if audio_data_bytes:
                     st.audio(audio_data_bytes, format="audio/mp3")
-                    # Lưu vào bộ nhớ trạng thái để không bị mất khi người dùng tương tác tiếp
+                    # Lưu toàn bộ trạng thái chữ + audio vào lịch sử phiên làm việc
                     st.session_state.messages.append({
                         "role": "assistant", 
                         "content": full_text_response, 
