@@ -197,40 +197,36 @@ with st.chat_message("assistant"):
     except Exception as e:
         st.error(f"Không thể xử lý yêu cầu: {e}")
 
-                        break
+                       
+            except APIError as e:
+                status = getattr(e, "code", None)
 
-                    except APIError as e:
-                        status = getattr(e, "code", None)
+                if status == 503 and attempt < 2:
+                    time.sleep(2 ** (attempt + 1))
+                    continue
 
-                        if status == 503 and attempt < 2:
-                            time.sleep(2 ** (attempt + 1))
-                            continue
+                if status == 429:
+                    st.error("API đang giới hạn tài nguyên hoặc quota.")
+                else:
+                    st.error(f"Gemini API gặp lỗi: {e}")
 
-                        if status == 429:
-                            st.error(
-                                "API đang giới hạn tài nguyên hoặc quota."
-                            )
-                        else:
-                            st.error(f"Gemini API gặp lỗi: {e}")
+                response = None
+                break
 
-                        response = None
-                        break
+        if response is not None:
+            full_text_response = (
+                response.text or "AI chưa tạo được câu trả lời."
+            )
 
-                if response is not None:
-                    full_text_response = (
-                        response.text
-                        or "AI chưa tạo được câu trả lời."
-                    )
+            van_ban_placeholder.markdown(full_text_response)
 
-                    van_ban_placeholder.markdown(full_text_response)
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": full_text_response,
+            })
 
-                    st.session_state.messages.append({
-                        "role": "assistant",
-                        "content": full_text_response,
-                    })
-
-            except Exception as e:
-                st.error(f"Không thể xử lý yêu cầu: {e}")
+    except Exception as e:
+        st.error(f"Không thể xử lý yêu cầu: {e}")
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
