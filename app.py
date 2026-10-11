@@ -1,38 +1,53 @@
+
 import streamlit as st
 from google import genai
 from google.genai import types
-import os
-import time
 from google.genai.errors import APIError
-# 1. CẤU HÌNH TRUY XUẤT CHÌA KHÓA AI BẢO MẬT
-if "GEMINI_API_KEY" in st.secrets:
-    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-else:
-    st.error("Chưa cấu hình API Key trong mục Secrets của hệ thống máy chủ.") #
+import time
 
-# Định nghĩa câu lệnh hệ thống cốt lõi
+# ==========================================
+# 1. CẤU HÌNH TRANG VÀ API
+# ==========================================
+
+st.set_page_config(
+    page_title="E-HERO AI Platform",
+    page_icon="🤖",
+    layout="wide",
+)
+
+if "GEMINI_API_KEY" not in st.secrets:
+    st.error(
+        "Chưa cấu hình GEMINI_API_KEY. "
+        "Hãy thêm API Key trong mục Secrets của Streamlit Cloud."
+    )
+    st.stop()
+
+client = genai.Client(
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
+
+# ==========================================
+# 2. HƯỚNG DẪN HỆ THỐNG
+# ==========================================
 
 huong_dan_he_thong = """
 Bạn là E-HERO AI, trợ lý học tiếng Anh dành cho học sinh THPT.
 
 QUY TẮC:
-- Ưu tiên trả lời ngắn gọn, rõ ràng, đúng trọng tâm.
+- Trả lời ngắn gọn, rõ ràng, đúng trọng tâm.
 - Giải thích bằng tiếng Việt; giữ ví dụ tiếng Anh khi cần.
-- Từ vựng: nêu nghĩa, từ loại và 1 ví dụ.
-- Ngữ pháp: nêu công thức, cách dùng và 1 ví dụ.
-- IELTS/VSTEP: đưa ra hướng dẫn thực tế, phù hợp trình độ học sinh.
-- Bài tập: giải thích các bước chính, không lan man.
-- Mặc định khoảng 80–150 từ; câu hỏi đơn giản trả lời trong 30–60 từ.
-- Chỉ mở rộng khi học sinh yêu cầu chi tiết.
-- Nếu câu hỏi không liên quan đến tiếng Anh hoặc giáo dục,
-  lịch sự từ chối bằng tiếng Việt.
+- Từ vựng: nêu nghĩa, từ loại và một ví dụ.
+- Ngữ pháp: nêu công thức, cách dùng và một ví dụ.
+- IELTS/VSTEP: hướng dẫn thực tế, phù hợp trình độ học sinh.
+- Bài tập: giải thích các bước chính.
+- Mặc định khoảng 80–150 từ; câu hỏi đơn giản
+  trả lời trong 30–60 từ.
+- Chỉ mở rộng khi học sinh yêu cầu.
+- Nếu câu hỏi không liên quan đến tiếng Anh hoặc
+  giáo dục, lịch sự từ chối bằng tiếng Việt.
 - Giọng điệu thân thiện, sư phạm, động viên.
 """
 
-# Tạm tắt Google Context Caching cho bản demo
-id_context_cache = None
-
-# Đọc tài liệu làm ngữ cảnh cho AI
 try:
     with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
         noi_dung_tai_lieu = f.read()
@@ -45,103 +60,224 @@ huong_dan_day_du = (
     + noi_dung_tai_lieu
 )
 
-# 2. KHỞI TẠO BỘ NHỚ LƯU TRỮ TÀI LIỆU TẠM THỜI (Hệ thống phê duyệt)
+# ==========================================
+# 3. KHỞI TẠO DỮ LIỆU
+# ==========================================
+
 if "kho_tai_lieu" not in st.session_state:
     st.session_state.kho_tai_lieu = [
-        {"ten": "Đề thi thử THPT Quốc gia 2026 - Đột phá Ngữ pháp.pdf", "nguoi_gui": "Thầy Minh (GV Tiếng Anh)", "trang_thai": "Đã phê duyệt"}, #
-        {"ten": "Bộ từ vựng IELTS Chuyên sâu - Nâng band Thần tốc 8.0.pdf", "nguoi_gui": "Bạn An (Lớp 12A1)", "trang_thai": "Đã phê duyệt"} #
+        {
+            "ten": "Đề thi thử THPT Quốc gia 2026.pdf",
+            "nguoi_gui": "Thầy Minh (GV Tiếng Anh)",
+            "trang_thai": "Đã phê duyệt",
+        },
+        {
+            "ten": "Bộ từ vựng IELTS chuyên sâu 8.0.pdf",
+            "nguoi_gui": "Bạn An (Lớp 12A1)",
+            "trang_thai": "Đã phê duyệt",
+        },
     ]
+
 if "danh_sach_cho" not in st.session_state:
-    st.session_state.danh_sach_cho = [] #
+    st.session_state.danh_sach_cho = []
 
-# 3. THIẾT KẾ GIAO DIỆN CHÂN THỰC VÀ THANH ĐIỀU HƯỚNG TRANG (MULTIPAGE)
-st.set_page_config(page_title="E-HERO AI Platform", page_icon="🤖", layout="wide") #
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-st.markdown("""
+if "goi_y_prompt" not in st.session_state:
+    st.session_state.goi_y_prompt = ""
+
+# ==========================================
+# 4. GIAO DIỆN CHUNG
+# ==========================================
+
+st.markdown(
+    """
     <style>
-    .stApp { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
-    .main-title { background: linear-gradient(45deg, #1e3a8a, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Inter', sans-serif; font-weight: 800; text-align: center; }
-    .card-luxury { background-color: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03); margin-bottom: 20px; border-top: 4px solid #2563eb; }
+    .stApp {
+        background: linear-gradient(
+            135deg, #f8fafc 0%, #f1f5f9 100%
+        );
+    }
+
+    .main-title {
+        background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: sans-serif;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .card-luxury {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+        border-top: 4px solid #2563eb;
+    }
     </style>
-""", unsafe_allow_html=True) #
+    """,
+    unsafe_allow_html=True,
+)
 
-st.sidebar.markdown("## 🧭 BẢNG ĐIỀU HƯỚNG") #
-trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Trợ lý AI Thông Minh", "📚 Kho Tài Liệu Học Tập", "🔐 Cổng Kiểm Duyệt Admin"]) #
+st.sidebar.markdown("## 🧭 BẢNG ĐIỀU HƯỚNG")
+
+trang_hien_tai = st.sidebar.radio(
+    "Chọn không gian làm việc:",
+    [
+        "🤖 Trợ lý AI Thông Minh",
+        "📚 Kho Tài Liệu Học Tập",
+        "🔐 Cổng Kiểm Duyệt Admin",
+    ],
+)
 
 # ==========================================
-# TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH (ĐÃ TỐI ƯU VOICE + CACHE)
+# TRANG 1: TRỢ LÝ AI
 # ==========================================
+
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
-    st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True) #
-    st.caption("<p style='text-align: center; color: #64748b;'>Hệ thống Trợ lý ảo Cá nhân hóa - Không gian học tập Tiếng Anh toàn diện</p>", unsafe_allow_html=True) #
-    
+
+    st.markdown(
+        "<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        "<p style='text-align:center;color:#64748b;'>"
+        "Trợ lý học tiếng Anh - Không gian học tập toàn diện"
+        "</p>",
+        unsafe_allow_html=True,
+    )
+
     with st.container():
-        st.markdown("""
-        <div class='card-luxury'>
-        <h4 style='color: #1e293b; margin-top:0; margin-bottom:8px;'>💡 HƯỚNG DẪN GỢI Ý NỘI DUNG HỎI THEO TỪ KHÓA:</h4>
-        <p style='color: #475569; font-size:0.9em; margin-bottom:12px;'>Nhấp vào từ khóa để tự động nạp nhanh câu hỏi mẫu xuất sắc vào ô nhớ hệ thống:</p>
-        </div>
-        """, unsafe_allow_html=True) #
-        
-        col1, col2, col3, col4 = st.columns(4) #
+        st.markdown(
+            """
+            <div class='card-luxury'>
+                <h4 style='color:#1e293b;'>
+                    💡 GỢI Ý NỘI DUNG HỌC TẬP
+                </h4>
+                <p style='color:#475569;'>
+                    Chọn một chủ đề để tạo câu hỏi mẫu.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        col1, col2, col3, col4 = st.columns(4)
+
         with col1:
-            if st.button("📌 Từ khóa: THPT Quốc Gia"): #
-                st.session_state.goi_y_prompt = "Hãy giải thích chi tiết cấu trúc câu Đảo ngữ (Inversion) thường gặp trong đề thi THPT và cho ví dụ minh họa kèm bài tập." #
+            if st.button("📌 THPT Quốc Gia"):
+                st.session_state.goi_y_prompt = (
+                    "Giải thích cấu trúc câu đảo ngữ "
+                    "thường gặp trong đề thi THPT và cho bài tập."
+                )
+
         with col2:
-            if st.button("👑 Từ khóa: IELTS Writing"): #
-                st.session_state.goi_y_prompt = "Chấm điểm và sửa bài luận sau theo 4 tiêu chí chuẩn Rubric IELTS: [Dán bài văn của bạn vào đây]" #
+            if st.button("👑 IELTS Writing"):
+                st.session_state.goi_y_prompt = (
+                    "Hướng dẫn cách viết IELTS Writing Task 2 "
+                    "cho người mới bắt đầu."
+                )
+
         with col3:
-            if st.button("🗣️ Từ khóa: Alex Speaking"): #
-                st.session_state.goi_y_prompt = "Hello Alex! Let's practice speaking english. Can we chat about environmental protection?" #
+            if st.button("🗣️ Speaking với Alex"):
+                st.session_state.goi_y_prompt = (
+                    "Hello Alex! Let's practice speaking English. "
+                    "Can we chat about environmental protection?"
+                )
+
         with col4:
-            if st.button("📝 Từ khóa: Chứng chỉ VSTEP"): #
-                st.session_state.goi_y_prompt = "Hướng dẫn mình cấu trúc viết thư phàn nàn (Letter of Complaint) để đạt điểm cao trong kỳ thi VSTEP." #
+            if st.button("📝 VSTEP"):
+                st.session_state.goi_y_prompt = (
+                    "Hướng dẫn cấu trúc viết thư phàn nàn "
+                    "trong kỳ thi VSTEP và cho ví dụ."
+                )
 
-    if "goi_y_prompt" in st.session_state and st.session_state.goi_y_prompt:
-        st.info(f"📋 **Câu hỏi mẫu đã sẵn sàng:** `{st.session_state.goi_y_prompt}`") #
-        st.caption("Mẹo: Hãy bôi đen copy câu lệnh trên và dán vào ô chat dưới cùng để gửi đi siêu tốc!") #
+    if st.session_state.goi_y_prompt:
+        st.info(
+            "📋 Câu hỏi mẫu: "
+            + st.session_state.goi_y_prompt
+        )
+        if st.button("Dùng câu hỏi mẫu"):
+            st.session_state.messages.append({
+                "role": "user",
+                "content": st.session_state.goi_y_prompt,
+            })
+            st.session_state.goi_y_prompt = ""
+            st.rerun()
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = [] #
+    # Hiển thị lịch sử hội thoại
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"]) #
-            if message["role"] == "assistant" and "audio" in message:
-                st.audio(message["audio"], format="audio/mp3")
+            st.markdown(message["content"])
 
-    chat_input_data = st.chat_input(placeholder="Hỏi bằng chữ hoặc gửi giọng nói qua micro...", accept_audio=True) #
+    # Ô nhập liệu
+    chat_input_data = st.chat_input(
+        "Nhập câu hỏi hoặc gửi giọng nói...",
+        accept_audio=True,
+    )
 
+    # Xử lý tin nhắn mới
     if chat_input_data:
+
         user_display_message = ""
         ai_content_input = None
 
-        is_audio_file = hasattr(chat_input_data, 'audio') and chat_input_data.audio is not None #
+        audio_file = getattr(chat_input_data, "audio", None)
+        text_input = getattr(chat_input_data, "text", None)
 
-        if is_audio_file:
-            user_display_message = "🎙️ *[Học sinh vừa gửi một đoạn ghi âm giọng nói]*" #
+        if audio_file is not None:
+            user_display_message = (
+                "🎙️ Học sinh đã gửi một đoạn ghi âm."
+            )
+
             try:
-                audio_bytes = chat_input_data.audio.read() #
+                if hasattr(audio_file, "getvalue"):
+                    audio_bytes = audio_file.getvalue()
+                else:
+                    audio_bytes = audio_file.read()
+
+                mime_type = (
+                    getattr(audio_file, "type", None)
+                    or "audio/wav"
+                )
+
                 ai_content_input = [
-                    types.Part.from_bytes(data=audio_bytes, mime_type="audio/wav"), #
-                    "Học sinh đang gửi file ghi âm. Hãy phân tích giọng nói và phản hồi bằng cả âm thanh."
+                    types.Part.from_bytes(
+                        data=audio_bytes,
+                        mime_type=mime_type,
+                    ),
+                    (
+                        "Hãy phân tích nội dung lời nói trong "
+                        "bản ghi âm và phản hồi bằng văn bản."
+                    ),
                 ]
-            except:
-                ai_content_input = "Hello Alex!" #
-        else:
-            user_display_message = chat_input_data.text #
-            ai_content_input = user_display_message #
 
-        st.session_state.messages.append({"role": "user", "content": user_display_message}) #
-        with st.chat_message("user"):
-            st.markdown(user_display_message) #
+            except Exception as e:
+                st.error(f"Không thể đọc file âm thanh: {e}")
 
-       
-with st.chat_message("assistant"):
-   
+        elif text_input:
+            user_display_message = text_input
+            ai_content_input = text_input
+
         if ai_content_input is not None:
+
+            st.session_state.messages.append({
+                "role": "user",
+                "content": user_display_message,
+            })
+
+            with st.chat_message("user"):
+                st.markdown(user_display_message)
+
+            # Toàn bộ xử lý AI nằm trong khối chat của trang 1
             with st.chat_message("assistant"):
+
                 placeholder = st.empty()
-                placeholder.markdown("*AI đang xử lý...*")
+                placeholder.markdown("*E-HERO AI đang xử lý...*")
 
                 response = None
 
@@ -160,8 +296,9 @@ with st.chat_message("assistant"):
                         )
 
                         elapsed = time.perf_counter() - start_time
+
                         st.caption(
-                            f"⏱️ AI xử lý trong {elapsed:.2f} giây"
+                            f"⏱️ Thời gian xử lý: {elapsed:.2f} giây"
                         )
                         break
 
@@ -180,17 +317,16 @@ with st.chat_message("assistant"):
                         else:
                             st.error(f"Gemini API gặp lỗi: {e}")
 
-                        response = None
                         break
 
                     except Exception as e:
                         st.error(f"Không thể xử lý yêu cầu: {e}")
-                        response = None
                         break
 
                 if response is not None:
                     full_text_response = (
-                        response.text or "AI chưa tạo được câu trả lời."
+                        response.text
+                        or "AI chưa tạo được câu trả lời."
                     )
 
                     placeholder.markdown(full_text_response)
@@ -199,69 +335,137 @@ with st.chat_message("assistant"):
                         "role": "assistant",
                         "content": full_text_response,
                     })
+
 # ==========================================
-# TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
+# TRANG 2: KHO TÀI LIỆU HỌC TẬP
 # ==========================================
+
 elif trang_hien_tai == "📚 Kho Tài Liệu Học Tập":
-    st.markdown("<h1 style='color:#1e3a8a;'>📚 KHO TRI THỨC VÀ TÀI LIỆU TIẾNG ANH CHIA SẺ</h1>", unsafe_allow_html=True)
-    st.write("Nơi học sinh và thầy cô chia sẻ tài liệu ôn thi chất lượng cao (Đã qua kiểm duyệt bảo mật).")
-    
-    with st.expander("📤 ĐÓNG GÓP TÀI LIỆU MỚI (CẦN DUYỆT)", expanded=True):
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            ten_nguoi_gui = st.text_input("Tên người đóng góp / Tác giả:", placeholder="Ví dụ: Nguyễn Văn A - Lớp 12A2")
-        with col_f2:
-            file_upload = st.file_uploader("Chọn tệp tài liệu của bạn (PDF, DOCX, TXT):", type=["pdf", "docx", "txt"])
-        
-        if st.button("Gửi tài liệu lên Hệ thống kiểm duyệt 🚀"):
-            if ten_nguoi_gui and file_upload:
+
+    st.markdown(
+        "<h1 style='color:#1e3a8a;'>"
+        "📚 KHO TRI THỨC VÀ TÀI LIỆU TIẾNG ANH"
+        "</h1>",
+        unsafe_allow_html=True,
+    )
+
+    st.write(
+        "Nơi học sinh và thầy cô đóng góp tài liệu học tập."
+    )
+
+    with st.expander(
+        "📤 ĐÓNG GÓP TÀI LIỆU MỚI",
+        expanded=True,
+    ):
+        ten_nguoi_gui = st.text_input(
+            "Tên người đóng góp / Tác giả:"
+        )
+
+        file_upload = st.file_uploader(
+            "Chọn file PDF, DOCX hoặc TXT:",
+            type=["pdf", "docx", "txt"],
+        )
+
+        if st.button("Gửi tài liệu để kiểm duyệt 🚀"):
+
+            if ten_nguoi_gui.strip() and file_upload is not None:
+
                 st.session_state.danh_sach_cho.append({
                     "ten": file_upload.name,
-                    "nguoi_gui": ten_nguoi_gui,
-                    "trang_thai": "Chờ phê duyệt"
+                    "nguoi_gui": ten_nguoi_gui.strip(),
+                    "trang_thai": "Chờ phê duyệt",
                 })
-                st.success("🎉 Gửi tài liệu thành công! Tài liệu đã được chuyển tới phòng kiểm duyệt của Ban quản trị nhà trường.")
+
+                st.success(
+                    "Đã gửi tài liệu vào danh sách chờ duyệt."
+                )
+
             else:
-                st.warning("⚠️ Vui lòng điền đầy đủ thông tin tên tác giả và chọn file tài liệu trước khi gửi.")
+                st.warning(
+                    "Vui lòng nhập tên và chọn file tài liệu."
+                )
 
-    st.markdown("### 📥 DANH MỤC TÀI LIỆU CHÍNH THỨC")
+    st.markdown("### 📥 DANH MỤC TÀI LIỆU")
+
+    if not st.session_state.kho_tai_lieu:
+        st.info("Chưa có tài liệu nào.")
+
     for doc in st.session_state.kho_tai_lieu:
-        st.markdown(f"""
-        <div style='background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 10px;'>
-            <b style='color:#1e3a8a; font-size:1.05em;'>📄 {doc['ten']}</b><br>
-            <small style='color:#64748b;'>Đóng góp bởi: {doc['nguoi_gui']} | Trạng thái: <span style='color:green; font-weight:bold;'>{doc['trang_thai']}</span></small>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style='background:white;padding:15px;
+                        border-radius:10px;margin-bottom:10px;'>
+                <b style='color:#1e3a8a;'>
+                    📄 {doc['ten']}
+                </b>
+                <br>
+                <small>
+                    Người gửi: {doc['nguoi_gui']}
+                    | Trạng thái: {doc['trang_thai']}
+                </small>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 # ==========================================
-# TRANG 3: CỔNG KIỂM DUYỆT ADMIN (ĐA VÁ LỖI THỤT LỀ 100%)
+# TRANG 3: CỔNG KIỂM DUYỆT ADMIN
 # ==========================================
+
 elif trang_hien_tai == "🔐 Cổng Kiểm Duyệt Admin":
-    st.markdown("<h1 style='color:#1e3a8a;'>🔐 CỔNG KIỂM DUYỆT TÀI LIỆU DÀNH CHO ADMIN</h1>", unsafe_allow_html=True)
-    ma_pin = st.text_input("Nhập mã PIN xác thực quyền Quản trị viên (Admin):", type="password")
-    
+
+    st.markdown(
+        "<h1 style='color:#1e3a8a;'>"
+        "🔐 CỔNG KIỂM DUYỆT ADMIN"
+        "</h1>",
+        unsafe_allow_html=True,
+    )
+
+    ma_pin = st.text_input(
+        "Nhập mã PIN Admin:",
+        type="password",
+    )
+
+    # PIN này chỉ để trình diễn; không đủ an toàn cho môi trường thật.
     if ma_pin == "0601":
-        st.success("🔓 Xác thực thành công! Quyền Quản trị viên đã được kích hoạt.")
-        st.markdown("### 📥 DANH SÁCH TÀI LIỆU ĐANG CHỜ DUYỆT")
-        
+
+        st.success("Đã mở giao diện kiểm duyệt.")
+
+        st.markdown("### 📥 DANH SÁCH CHỜ DUYỆT")
+
         if not st.session_state.danh_sach_cho:
-            st.info("Hiện tại chưa có tài liệu nào cần phê duyệt.")
+            st.info("Không có tài liệu chờ duyệt.")
+
         else:
-            # Tạo một mảng bản sao danh sách để vòng lặp chạy mượt mà không dính lỗi chỉ mục
-            danh_sach_tam = list(st.session_state.danh_sach_cho)
-            
-            for i, doc in enumerate(danh_sach_tam):
-                st.write(f"📁 **Tên file:** {doc['ten']} — *Người gửi:* {doc['nguoi_gui']}")
-                
+            for i, doc in enumerate(
+                list(st.session_state.danh_sach_cho)
+            ):
+                st.write(
+                    f"📁 **{doc['ten']}** — "
+                    f"Người gửi: {doc['nguoi_gui']}"
+                )
+
                 col_btn1, col_btn2 = st.columns(2)
+
                 with col_btn1:
-                    if st.button(f"✅ Duyệt file {i+1}", key=f"duyet_{i}"):
+                    if st.button(
+                        f"✅ Duyệt file {i + 1}",
+                        key=f"duyet_{i}",
+                    ):
                         item = st.session_state.danh_sach_cho.pop(i)
                         item["trang_thai"] = "Đã phê duyệt"
                         st.session_state.kho_tai_lieu.append(item)
                         st.rerun()
+
                 with col_btn2:
-                    if st.button(f"❌ Từ chối file {i+1}", key=f"xoa_{i}"):
+                    if st.button(
+                        f"❌ Từ chối file {i + 1}",
+                        key=f"tu_choi_{i}",
+                    ):
                         st.session_state.danh_sach_cho.pop(i)
                         st.rerun()
+
                 st.markdown("---")
+
+    elif ma_pin:
+        st.error("Mã PIN không chính xác.")
