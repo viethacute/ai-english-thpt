@@ -140,8 +140,8 @@ with st.chat_message("assistant"):
    
         if ai_content_input is not None:
             with st.chat_message("assistant"):
-                van_ban_placeholder = st.empty()
-                van_ban_placeholder.markdown("*AI đang xử lý...*")
+                placeholder = st.empty()
+                placeholder.markdown("*AI đang xử lý...*")
 
                 response = None
 
@@ -161,7 +161,7 @@ with st.chat_message("assistant"):
 
                         elapsed = time.perf_counter() - start_time
                         st.caption(
-                            f"⏱️ Thời gian AI xử lý: {elapsed:.2f} giây"
+                            f"⏱️ AI xử lý trong {elapsed:.2f} giây"
                         )
                         break
 
@@ -174,18 +174,16 @@ with st.chat_message("assistant"):
 
                         if status == 429:
                             st.error(
-                                "API đang giới hạn tài nguyên hoặc quota. "
-                                "Hãy kiểm tra hạn mức sử dụng Gemini."
+                                "API đã đạt giới hạn sử dụng. "
+                                "Hãy kiểm tra quota Gemini."
                             )
                         else:
                             st.error(f"Gemini API gặp lỗi: {e}")
 
-                        response = None
                         break
 
                     except Exception as e:
                         st.error(f"Không thể xử lý yêu cầu: {e}")
-                        response = None
                         break
 
                 if response is not None:
@@ -193,7 +191,7 @@ with st.chat_message("assistant"):
                         response.text or "AI chưa tạo được câu trả lời."
                     )
 
-                    van_ban_placeholder.markdown(full_text_response)
+                    placeholder.markdown(full_text_response)
 
                     st.session_state.messages.append({
                         "role": "assistant",
