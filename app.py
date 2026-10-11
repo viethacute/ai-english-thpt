@@ -54,85 +54,101 @@ trang_hien_tai = st.sidebar.radio("Chọn không gian làm việc:", ["🤖 Tr�
 # ==========================================
 # TRANG 1: TRỢ LÝ AI CHAT THÔNG MINH
 # ==========================================
+# CHỈNH SỬA VÀ THAY THẾ ĐOẠN XỬ LÝ CHAT Ở TRANG 1 TRONG FILE CỦA BẠN:
+
 if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
     st.markdown("<h1 class='main-title'>🤖 PROJECT E-HERO AI ECOSYSTEM</h1>", unsafe_allow_html=True)
-    st.caption("<p style='text-align: center; color: #64748b;'>Hệ thống Trợ lý ảo Cá nhân hóa - Không gian học tập Tiếng Anh toàn diện</p>", unsafe_allow_html=True)
-    
-    with st.container():
-        st.markdown("""
-        <div class='card-luxury'>
-        <h4 style='color: #1e293b; margin-top:0; margin-bottom:8px;'>💡 HƯỚNG DẪN GỢI Ý NỘI DUNG HỎI THEO TỪ KHÓA:</h4>
-        <p style='color: #475569; font-size:0.9em; margin-bottom:12px;'>Nhấp vào từ khóa để tự động nạp nhanh câu hỏi mẫu xuất sắc vào ô nhớ hệ thống:</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            if st.button("📌 Từ khóa: THPT Quốc Gia"):
-                st.session_state.goi_y_prompt = "Hãy giải thích chi tiết cấu trúc câu Đảo ngữ (Inversion) thường gặp trong đề thi THPT và cho ví dụ minh họa kèm bài tập."
-        with col2:
-            if st.button("👑 Từ khóa: IELTS Writing"):
-                st.session_state.goi_y_prompt = "Chấm điểm và sửa bài luận sau theo 4 tiêu chí chuẩn Rubric IELTS: [Dán bài văn của bạn vào đây]"
-        with col3:
-            if st.button("🗣️ Từ khóa: Alex Speaking"):
-                st.session_state.goi_y_prompt = "Hello Alex! Let's practice speaking english. Can we chat about environmental protection?"
-        with col4:
-            if st.button("📝 Từ khóa: Chứng chỉ VSTEP"):
-                st.session_state.goi_y_prompt = "Hướng dẫn mình cấu trúc viết thư phàn nàn (Letter of Complaint) để đạt điểm cao trong kỳ thi VSTEP."
+    # ... (Giữ nguyên phần giao diện và từ khóa gợi ý của bạn) ...
 
-    if "goi_y_prompt" in st.session_state and st.session_state.goi_y_prompt:
-        st.info(f"📋 **Câu hỏi mẫu đã sẵn sàng:** `{st.session_state.goi_y_prompt}`")
-        st.caption("Mẹo: Hãy bôi đen copy câu lệnh trên và dán vào ô chat dưới cùng để gửi đi siêu tốc!")
-
+    # Khởi tạo bộ nhớ chat nếu chưa có
     if "messages" not in st.session_state:
         st.session_state.messages = []
+        
+    # Hiển thị lịch sử chat chữ
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            # Nếu tin nhắn của trợ lý có kèm file âm thanh phản hồi, hiển thị trình phát
+            if message["role"] == "assistant" and "audio" in message:
+                st.audio(message["audio"], format="audio/mp3")
 
-    chat_input_data = st.chat_input(placeholder="Hỏi bất cứ điều gì về THPT, IELTS, VSTEP, Từ vựng, Ngữ pháp...", accept_audio=True)
+    # BẬT CHỨC NĂNG NHẬN CẢ AUDIO VÀ TEXT TỪ CHAT INPUT
+    chat_input_data = st.chat_input(placeholder="Hỏi bằng chữ hoặc gửi giọng nói qua micro...", accept_audio=True)
 
     if chat_input_data:
         user_display_message = ""
         ai_content_input = None
 
+        # Kiểm tra xem người dùng gửi âm thanh hay chữ
         is_audio_file = hasattr(chat_input_data, 'audio') and chat_input_data.audio is not None
 
         if is_audio_file:
             user_display_message = "🎙️ *[Học sinh vừa gửi một đoạn ghi âm giọng nói]*"
             try:
                 audio_bytes = chat_input_data.audio.read()
+                # Chuyển đổi tệp tin để Gemini hiểu cấu trúc đa phương thức bản địa (Native Multimodal)
                 ai_content_input = [
                     types.Part.from_bytes(data=audio_bytes, mime_type="audio/wav"),
-                    "Học sinh đang luyện nói tiếng Anh giao tiếp phản xạ. Hãy nghe đoạn ghi âm trên và phản hồi."
+                    "Học sinh đang luyện nói tiếng Anh. Hãy nghe, sửa lỗi phát âm/ngữ pháp và phản hồi lại bằng giọng nói."
                 ]
-            except:
-                ai_content_input = "Hello Alex!"
+            except Exception as e:
+                ai_content_input = "Hello"
         else:
             user_display_message = chat_input_data.text
             ai_content_input = user_display_message
 
+        # Lưu và hiển thị câu hỏi của User
         st.session_state.messages.append({"role": "user", "content": user_display_message})
         with st.chat_message("user"):
             st.markdown(user_display_message)
 
+        # XỬ LÝ PHẢN HỒI TỪ GEMINI (BẬT TÍNH NĂNG ĐẦU RA GIỌNG NÓI)
         with st.chat_message("assistant"):
             try:
-                def generate_response_stream():
-                    response_stream = client.models.generate_content_stream(
-                        model='gemini-3.8-flash',
-                        contents=ai_content_input,
-                        config=types.GenerateContentConfig(system_instruction=prompt_he_thong)
+                # Tạo khu vực hiển thị text stream trước
+                van_ban_placeholder = st.empty()
+                
+                # Gọi API với cấu hình yêu cầu cả TEXT và AUDIO ở đầu ra
+                # Chuyển sang mô hình gemini-2.5-flash hoặc gemini-2.0-flash tối ưu tốt hơn cho Audio Turn-based
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash', 
+                    contents=ai_content_input,
+                    config=types.GenerateContentConfig(
+                        system_instruction=prompt_he_thong,
+                        # YÊU CẦU QUAN TRỌNG: Trả về cả chữ viết và âm thanh nói
+                        response_modalities=["TEXT", "AUDIO"] 
                     )
-                    for chunk in response_stream:
-                        if chunk.text:
-                            yield chunk.text
+                )
 
-                full_response = st.write_stream(generate_response_stream)
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                # Lấy văn bản trả về hiển thị lên màn hình
+                full_text_response = response.text if response.text else "Mình đã nghe rõ phản hồi của bạn!"
+                van_ban_placeholder.markdown(full_text_response)
+
+                # Tìm và trích xuất mảng Byte âm thanh từ gói phản hồi của Gemini
+                audio_data_bytes = None
+                for part in response.candidates[0].content.parts:
+                    # Kiểm tra phần dữ liệu nhị phân chứa audio ẩn bên trong kết quả
+                    if part.inline_data and "audio" in part.inline_data.mime_type:
+                        audio_data_bytes = part.inline_data.data
+                        break
+
+                # Nếu có dữ liệu âm thanh trả về từ AI, tiến hành phát ngay trên giao diện
+                if audio_data_bytes:
+                    st.audio(audio_data_bytes, format="audio/mp3")
+                    # Lưu vào bộ nhớ trạng thái để không bị mất khi người dùng tương tác tiếp
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": full_text_response, 
+                        "audio": audio_data_bytes
+                    })
+                else:
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": full_text_response
+                    })
+
             except Exception as e:
                 st.error(f"Lỗi kết nối máy chủ AI: {str(e)}")
-
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
