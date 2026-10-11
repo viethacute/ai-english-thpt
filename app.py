@@ -154,8 +154,7 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                                 temperature=0.5,
 ),
 
-                            ),
-                        )
+                            )
                         break
 
                     except APIError as e:
