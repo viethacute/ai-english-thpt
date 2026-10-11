@@ -190,6 +190,7 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                     })
 
             except Exception as e:
+                st.error(f"Lỗi kết nối máy chủ AI: {str(e)}") 
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
