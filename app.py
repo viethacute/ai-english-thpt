@@ -2,7 +2,8 @@ import streamlit as st
 from google import genai
 from google.genai import types
 import os
-
+import time
+from google.genai.errors import APIError
 # 1. CẤU HÌNH TRUY XUẤT CHÌA KHÓA AI BẢO MẬT
 if "GEMINI_API_KEY" in st.secrets:
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
@@ -126,63 +127,54 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
         with st.chat_message("assistant"):
             try:
                 van_ban_placeholder = st.empty()
-                van_ban_placeholder.markdown("*AI đang xử lý thông tin siêu tốc...*")
+                van_ban_placeholder.markdown("*AI đang xử lý...*")
 
-import time
-from google.genai.errors import APIError
+                response = None
 
-# Gọi Gemini ở chế độ văn bản để kiểm tra kết nối trước
-try:
-    van_ban_placeholder = st.empty()
-    van_ban_placeholder.markdown("*AI đang xử lý...*")
+                for attempt in range(3):
+                    try:
+                        response = client.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=ai_content_input,
+                            config=types.GenerateContentConfig(
+                                system_instruction=huong_dan_day_du,
+                                response_modalities=["TEXT"],
+                            ),
+                        )
+                        break
 
-    response = None
+                    except APIError as e:
+                        status = getattr(e, "code", None)
 
-    for attempt in range(3):
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=ai_content_input,
-                config=types.GenerateContentConfig(
-                    system_instruction=huong_dan_day_du,
-                    response_modalities=["TEXT"],
-                ),
-            )
-            break
+                        if status == 503 and attempt < 2:
+                            time.sleep(2 ** (attempt + 1))
+                            continue
 
-        except APIError as e:
-            status = getattr(e, "code", None)
+                        if status == 429:
+                            st.error(
+                                "API đang giới hạn tài nguyên hoặc quota."
+                            )
+                        else:
+                            st.error(f"Gemini API gặp lỗi: {e}")
 
-            # Chỉ thử lại lỗi máy chủ tạm thời
-            if status == 503 and attempt < 2:
-                time.sleep(2 ** (attempt + 1))
-                continue
+                        response = None
+                        break
 
-            if status == 429:
-                st.error(
-                    "API đang giới hạn tài nguyên hoặc quota. "
-                    "Hãy kiểm tra hạn mức của dự án Google AI."
-                )
-            else:
-                st.error(f"Gemini API gặp lỗi: {e}")
+                if response is not None:
+                    full_text_response = (
+                        response.text
+                        or "AI chưa tạo được câu trả lời."
+                    )
 
-            response = None
-            break
+                    van_ban_placeholder.markdown(full_text_response)
 
-    if response is not None:
-        full_text_response = (
-            response.text or "AI chưa tạo được câu trả lời dạng văn bản."
-        )
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": full_text_response,
+                    })
 
-        van_ban_placeholder.markdown(full_text_response)
-
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": full_text_response,
-        })
-
-except Exception as e:
-    st.error(f"Không thể xử lý yêu cầu: {e}")
+            except Exception as e:
+                st.error(f"Không thể xử lý yêu cầu: {e}")
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
