@@ -17,38 +17,21 @@ huong_dan_he_thong = (
     "Luôn trả lời bằng tiếng Việt khi giải thích ngữ pháp, ngôn ngữ thân thiện, sư phạm và động viên học sinh."
 )
 
-# MẸO CÔNG NGHỆ CAO: TỰ ĐỘNG TẠO CONTEXT CACHING TRÊN GOOGLE SERVER ĐỂ TĂNG TỐC 5 LẦN
-@st.cache_resource(ttl=3600)  # Lưu cấu hình cache ở phía Streamlit trong 1 tiếng
-def khoi_tao_context_cache_sieu_toc():
-    try:
-        with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
-            noi_dung_tai_lieu = f.read()
-    except FileNotFoundError:
-        noi_dung_tai_lieu = "Hệ thống đang sử dụng cơ sở dữ liệu mặc định." #
+# Tạm tắt Google Context Caching cho bản demo
+id_context_cache = None
 
-    try:
-        # Gộp tài liệu ôn thi vào prompt huấn luyện chung
-        prompt_huuan_luyen_day_du = (
-            f"{huong_dan_he_thong}\n\n"
-            f"=== DỮ LIỆU HUẤN LUYỆN CHUYÊN SÂU ===\n{noi_dung_tai_lieu}\n========================"
-        )
-        
-        # Tạo bộ nhớ đệm ngữ cảnh trên máy chủ Google (Hết hạn sau 1 tiếng để tiết kiệm)
-        bộ_cache = client.caches.create(
-            model="gemini-3.8-flash",
-            config=types.CreateCachedContentConfig(
-                contents=[prompt_huuan_luyen_day_du],
-                ttl="3600s",
-                display_name="e_hero_study_materials"
-            )
-        )
-        return bộ_cache.name  # Trả về mã ID của bộ cache (ví dụ: 'cachedContents/12345')
-    except Exception as e:
-        st.warning(f"Không thể tạo Cache (Có thể do file quá nhỏ, tối thiểu cần ~32k tokens). Hệ thống sẽ chạy ở chế độ thường. Chi tiết: {e}")
-        return None
+# Đọc tài liệu làm ngữ cảnh cho AI
+try:
+    with open("tai_lieu_on_thi.txt", "r", encoding="utf-8") as f:
+        noi_dung_tai_lieu = f.read()
+except FileNotFoundError:
+    noi_dung_tai_lieu = ""
 
-# Gọi hàm khởi tạo cache
-id_context_cache = khoi_tao_context_cache_sieu_toc()
+huong_dan_day_du = (
+    huong_dan_he_thong
+    + "\n\n=== TÀI LIỆU ÔN THI ===\n"
+    + noi_dung_tai_lieu
+)
 
 # 2. KHỞI TẠO BỘ NHỚ LƯU TRỮ TÀI LIỆU TẠM THỜI (Hệ thống phê duyệt)
 if "kho_tai_lieu" not in st.session_state:
@@ -145,52 +128,61 @@ if trang_hien_tai == "🤖 Trợ lý AI Thông Minh":
                 van_ban_placeholder = st.empty()
                 van_ban_placeholder.markdown("*AI đang xử lý thông tin siêu tốc...*")
 
-                # Cấu hình gọi API thông minh
-                if id_context_cache:
-                    # NẾU CÓ CACHE: Gọi mô hình kết hợp ID bộ nhớ đệm (Tốc độ phản hồi cực nhanh)
-                    config_chay = types.GenerateContentConfig(
-                        cached_content=id_context_cache,
-                        response_modalities=["TEXT", "AUDIO"]
-                    )
-                else:
-                    # NẾU KHÔNG CÓ CACHE (Do file tài liệu quá nhỏ): Chạy prompt thông thường
-                    config_chay = types.GenerateContentConfig(
-                        system_instruction=huong_dan_he_thong,
-                        response_modalities=["TEXT", "AUDIO"]
-                    )
+import time
+from google.genai.errors import APIError
 
-                response = client.models.generate_content(
-                    model='gemini-3.8-flash',
-                    contents=ai_content_input,
-                    config=config_chay
+# Gọi Gemini ở chế độ văn bản để kiểm tra kết nối trước
+try:
+    van_ban_placeholder = st.empty()
+    van_ban_placeholder.markdown("*AI đang xử lý...*")
+
+    response = None
+
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=ai_content_input,
+                config=types.GenerateContentConfig(
+                    system_instruction=huong_dan_day_du,
+                    response_modalities=["TEXT"],
+                ),
+            )
+            break
+
+        except APIError as e:
+            status = getattr(e, "code", None)
+
+            # Chỉ thử lại lỗi máy chủ tạm thời
+            if status == 503 and attempt < 2:
+                time.sleep(2 ** (attempt + 1))
+                continue
+
+            if status == 429:
+                st.error(
+                    "API đang giới hạn tài nguyên hoặc quota. "
+                    "Hãy kiểm tra hạn mức của dự án Google AI."
                 )
+            else:
+                st.error(f"Gemini API gặp lỗi: {e}")
 
-                full_text_response = response.text if response.text else "Mình đã xử lý xong yêu cầu của bạn!"
-                van_ban_placeholder.markdown(full_text_response)
+            response = None
+            break
 
-                # Trích xuất dữ liệu âm thanh trả về từ Gemini
-                audio_data_bytes = None
-                if response.candidates and response.candidates.content:
-                    for part in response.candidates.content.parts:
-                        if part.inline_data and "audio" in part.inline_data.mime_type:
-                            audio_data_bytes = part.inline_data.data
-                            break
+    if response is not None:
+        full_text_response = (
+            response.text or "AI chưa tạo được câu trả lời dạng văn bản."
+        )
 
-                if audio_data_bytes:
-                    st.audio(audio_data_bytes, format="audio/mp3")
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": full_text_response, 
-                        "audio": audio_data_bytes
-                    })
-                else:
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": full_text_response
-                    })
+        van_ban_placeholder.markdown(full_text_response)
 
-            except Exception as e:
-                st.error(f"Lỗi kết nối máy chủ AI: {str(e)}") 
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": full_text_response,
+        })
+
+except Exception as e:
+    st.error(f"Không thể xử lý yêu cầu: {e}")
 # ==========================================
 # TRANG 2: KHO TÀI LIỆU HỌC TẬP (CHO TẢI LÊN)
 # ==========================================
