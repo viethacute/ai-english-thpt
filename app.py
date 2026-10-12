@@ -34,7 +34,7 @@ client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 # Có thể đổi tên model trong Secrets mà không cần sửa code.
 MODEL_CHAT = st.secrets.get("GEMINI_MODEL", "gemini-3.8-flash")
-MODEL_TTS = st.secrets.get("GEMINI_TTS_MODEL", "gemini-3.8-flash-preview-tts")
+MODEL_TTS = st.secrets.get("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
 ADMIN_PIN = st.secrets.get("ADMIN_PIN", "")
 
 DATA_DIR = Path("du_lieu")
