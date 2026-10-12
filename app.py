@@ -216,7 +216,7 @@ def ask_text(system_prompt, history, user_text):
     contents = history + [
         types.Content(role="user", parts=[types.Part.from_text(text=user_text)])
     ]
-       cfg = types.GenerateContentConfig(
+        cfg = types.GenerateContentConfig(
         system_instruction=system_prompt,
         max_output_tokens=3000,
         temperature=0.5,
