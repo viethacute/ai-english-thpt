@@ -172,6 +172,16 @@ def build_system_prompt(mode, level, selected_ids):
 # ==========================================
 
 
+def make_thinking():
+    """Gemini 3.x dùng thinking_level. Nếu SDK quá cũ thì bỏ qua thay vì báo lỗi."""
+    try:
+        return types.ThinkingConfig(thinking_level="low")
+    except Exception:
+        return None
+
+
+THINKING = make_thinking()
+
 class VoiceTurn(BaseModel):
     transcript: str
     reply: str
@@ -206,8 +216,11 @@ def ask_text(system_prompt, history, user_text):
     contents = history + [
         types.Content(role="user", parts=[types.Part.from_text(text=user_text)])
     ]
-    cfg = types.GenerateContentConfig(
-        system_instruction=system_prompt, max_output_tokens=1500, temperature=0.5
+       cfg = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        max_output_tokens=3000,
+        temperature=0.5,
+        thinking_config=THINKING,
     )
 
     def stream():
@@ -236,10 +249,11 @@ def ask_voice(system_prompt, history, audio_bytes, mime):
             ],
         )
     ]
-    cfg = types.GenerateContentConfig(
+            cfg = types.GenerateContentConfig(
         system_instruction=system_prompt,
-        max_output_tokens=1500,
+        max_output_tokens=4000,
         temperature=0.5,
+        thinking_config=THINKING,
         response_mime_type="application/json",
         response_schema=VoiceTurn,
     )
@@ -250,10 +264,53 @@ def ask_voice(system_prompt, history, audio_bytes, mime):
         )
 
     resp = with_retry(call)
+    raw = resp.text or ""
+
+    # Cách 1: dữ liệu đã được phân tích sẵn
     parsed = getattr(resp, "parsed", None)
-    if parsed is None:
-        parsed = VoiceTurn(**json.loads(resp.text))
-    return parsed
+    if isinstance(parsed, VoiceTurn) and parsed.reply.strip():
+        return parsed
+
+    # Cách 2: tự đọc JSON
+    try:
+        return VoiceTurn(**json.loads(raw))
+    except Exception:
+        pass
+
+    # Cách 3: JSON bị cắt giữa chừng, lấy lại phần đọc được bằng regex
+    m_t = re.search(r'"transcript"\s*:\s*"((?:[^"\\]|\\.)*)', raw)
+    m_r = re.search(r'"reply"\s*:\s*"((?:[^"\\]|\\.)*)', raw)
+    if m_r and m_r.group(1).strip():
+        unescape = lambda s: s.replace("\\n", "\n").replace('\\"', '"')
+        return VoiceTurn(
+            transcript=unescape(m_t.group(1)) if m_t else "(lời nói)",
+            reply=unescape(m_r.group(1)),
+        )
+
+    # Cách 4: gọi lại không dùng JSON, coi toàn bộ là câu trả lời
+    plain_cfg = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        max_output_tokens=4000,
+        temperature=0.5,
+        thinking_config=THINKING,
+    )
+    plain_contents = history + [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_bytes(data=audio_bytes, mime_type=mime),
+                types.Part.from_text(
+                    text="Đây là lời nói của học sinh. Hãy phản hồi theo đúng chế độ."
+                ),
+            ],
+        )
+    ]
+    resp2 = with_retry(
+        lambda: client.models.generate_content(
+            model=MODEL_CHAT, contents=plain_contents, config=plain_cfg
+        )
+    )
+    return VoiceTurn(transcript="(lời nói)", reply=resp2.text or "AI chưa tạo được câu trả lời.")
 
 
 def clean_for_speech(text):
