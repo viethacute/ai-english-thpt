@@ -1,5 +1,5 @@
 streamlit>=1.50
-google-genai
+google-genai>=1.40
 pydantic
 pypdf
 python-docx
