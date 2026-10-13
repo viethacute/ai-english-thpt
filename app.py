@@ -43,9 +43,9 @@ def _as_list(value):
 # Danh sách model theo thứ tự ưu tiên. Model đầu lỗi thì tự chuyển sang model sau.
 # Đổi trong Secrets: GEMINI_MODEL = "model-chinh, model-du-phong-1, model-du-phong-2"
 MODELS_CHAT = _as_list(
-    st.secrets.get("GEMINI_MODEL", "gemini-3.8-flash,gemini-2.5-flash,gemini-2.5-flash-lite")
+    st.secrets.get("GEMINI_MODEL", "gemini-3.6-flash,gemini-3.5-flash,gemini-3.1-flash-lite")
 )
-MODEL_TTS = st.secrets.get("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
+MODEL_TTS = st.secrets.get("GEMINI_TTS_MODEL", "gemini-3.1-flash-tts-preview")
 ADMIN_PIN = st.secrets.get("ADMIN_PIN", "")
 
 client = genai.Client(
@@ -120,6 +120,8 @@ def _classify(e, model, attempt):
         return "next"
     if code == 404:  # tên model không tồn tại
         mark_down(model, 600)
+        return "next"
+    if code == 400:  # có thể do cấu hình không hợp với model này
         return "next"
     raise AIError(explain(e)) from e
 
@@ -204,6 +206,37 @@ def rate_ok():
         return False
     ts.append(now)
     return True
+
+
+# ==========================================
+# 2B. NHẬT KÝ SỬ DỤNG VÀ GÓP Ý (không lưu nội dung câu hỏi)
+# ==========================================
+
+
+@st.cache_resource
+def get_log():
+    return {"lock": threading.Lock(), "events": [], "votes": []}
+
+
+def log_event(**kw):
+    log = get_log()
+    with log["lock"]:
+        log["events"].append({"ts": round(time.time()), **kw})
+        del log["events"][:-5000]
+
+
+def add_vote(vote, had_sources):
+    log = get_log()
+    with log["lock"]:
+        log["votes"].append(
+            {
+                "ts": round(time.time()),
+                "mode": st.session_state.get("mode_pick") or "",
+                "vote": vote,
+                "sources": bool(had_sources),
+            }
+        )
+        del log["votes"][:-5000]
 
 
 # ==========================================
@@ -340,44 +373,67 @@ def retrieve(query, selected_ids, k=6, max_chars=6000):
 
 BASE_RULES = """
 Bạn là E-HERO AI, trợ lý học tiếng Anh cho học sinh THPT Việt Nam.
-- Giọng điệu thân thiện, động viên, đúng tinh thần sư phạm.
-- Nếu câu hỏi không liên quan đến tiếng Anh hoặc giáo dục, lịch sự từ chối bằng tiếng Việt.
-- Khi có TÀI LIỆU THAM KHẢO bên dưới, ưu tiên dựa vào đó và nói rõ khi bạn dùng nó.
-  Nếu tài liệu không có thông tin, trả lời bằng kiến thức chung và nói rõ điều đó.
+
+Phong cách:
+- Thân thiện, động viên, đúng tinh thần sư phạm. Khen cụ thể trước khi sửa lỗi.
+- Ngắn gọn, đi thẳng vào câu trả lời. Dùng Markdown nhẹ (in đậm từ khóa, bảng nhỏ khi so sánh), tránh danh sách dài.
+- Phù hợp lứa tuổi học sinh THPT, không đưa nội dung không phù hợp.
+
+Độ chính xác:
+- Không bịa quy tắc ngữ pháp, nghĩa của từ hay thông tin về cấu trúc đề thi. Nếu không chắc chắn, hãy nói rõ là bạn không chắc và gợi ý hỏi giáo viên.
+- Khi có TÀI LIỆU THAM KHẢO bên dưới và nội dung liên quan: ưu tiên dựa vào đó, nói rõ "Theo tài liệu <tên>..." và không thêm chi tiết mà tài liệu không có.
+- Nếu tài liệu không có thông tin: trả lời bằng kiến thức chung và nói rõ "Phần này không có trong tài liệu của thầy cô".
+
+Phạm vi và an toàn:
+- Chỉ hỗ trợ tiếng Anh và học tập. Với câu hỏi ngoài phạm vi, lịch sự từ chối bằng tiếng Việt và gợi ý quay lại việc học.
+- Không yêu cầu học sinh cung cấp thông tin cá nhân. Nếu học sinh tự chia sẻ, nhắc nhẹ nhàng không nên đưa thông tin cá nhân.
+- Nếu học sinh có dấu hiệu gặp khó khăn nghiêm trọng về tinh thần, trả lời ân cần và khuyên các em nói chuyện với thầy cô hoặc người thân.
 """
 
 MODES = {
     "Hỏi đáp kiến thức": (
         "Giải thích bằng tiếng Việt, giữ ví dụ tiếng Anh. "
-        "Từ vựng: nghĩa, từ loại, một ví dụ. Ngữ pháp: công thức, cách dùng, một ví dụ. "
-        "Mặc định 80-150 từ; câu đơn giản chỉ 30-60 từ. Chỉ mở rộng khi được yêu cầu."
+        "Từ vựng: nghĩa, từ loại, một ví dụ. "
+        "Ngữ pháp: công thức, cách dùng, lỗi hay gặp của người Việt, một ví dụ. "
+        "Mặc định 80-150 từ; câu đơn giản chỉ 30-60 từ. "
+        "Với kiến thức mới, kết thúc bằng đúng một câu hỏi kiểm tra nhanh để học sinh tự thử. "
+        "Chỉ mở rộng khi được yêu cầu."
     ),
     "Giao tiếp với Alex": (
         "Bạn đóng vai Alex, một người bạn bản xứ thân thiện. Chỉ nói TIẾNG ANH, "
-        "mỗi lượt 2-3 câu ngắn, kết thúc bằng một câu hỏi để học sinh nói tiếp. "
+        "mỗi lượt 2-3 câu ngắn, dùng từ vựng và cấu trúc đúng trình độ học sinh, "
+        "kết thúc bằng một câu hỏi để học sinh nói tiếp. "
         "Nếu học sinh mắc lỗi ngữ pháp hoặc từ vựng, sửa nhẹ nhàng ở cuối bằng một dòng "
-        "bắt đầu bằng 'Tip:' (viết bằng tiếng Việt, tối đa 1 lỗi mỗi lượt)."
+        "bắt đầu bằng 'Tip:' (viết bằng tiếng Việt, tối đa 1 lỗi mỗi lượt). "
+        "Nếu học sinh nói tiếng Việt, khuyến khích các em thử lại bằng tiếng Anh và đưa một câu mẫu."
     ),
     "Speaking IELTS": (
-        "Bạn là giám khảo IELTS Speaking. Hỏi lần lượt từng câu (Part 1, 2, 3), "
-        "bằng tiếng Anh, không giải thích dài. Sau khi học sinh trả lời, nhận xét ngắn "
-        "bằng tiếng Việt theo 4 tiêu chí (Fluency, Vocabulary, Grammar, Pronunciation), "
-        "gợi ý ước lượng band, rồi hỏi câu tiếp theo bằng tiếng Anh."
+        "Bạn là giám khảo IELTS Speaking, lịch sự và chuyên nghiệp. "
+        "Hỏi lần lượt từng câu (Part 1, rồi Part 2, rồi Part 3), bằng tiếng Anh, mỗi lượt chỉ một câu hỏi. "
+        "Part 2: đưa một cue card ngắn và nhắc học sinh nói khoảng 1-2 phút. "
+        "Sau khi học sinh trả lời, nhận xét ngắn bằng tiếng Việt theo 4 tiêu chí "
+        "(Fluency, Vocabulary, Grammar, Pronunciation), mỗi tiêu chí một dòng. "
+        "Nêu band ước lượng dạng khoảng (ví dụ 5.5-6.0) và nói rõ đây chỉ là ước lượng tham khảo. "
+        "Nhận xét phát âm chỉ dựa trên những gì nghe được và không khẳng định chắc chắn. "
+        "Cuối cùng hỏi câu tiếp theo bằng tiếng Anh."
     ),
     "Luyện thi VSTEP/THPT": (
-        "Học sinh sẽ gửi bài viết. Chấm theo bố cục, nội dung, từ vựng, ngữ pháp. "
-        "Liệt kê tối đa 5 lỗi quan trọng nhất kèm bản sửa, rồi viết lại một đoạn mẫu. "
-        "Nhận xét bằng tiếng Việt."
+        "Học sinh sẽ gửi bài viết. Phản hồi bằng tiếng Việt theo đúng 3 phần: "
+        "(1) Nhận xét chung: 2 câu, nêu một điểm mạnh và một điểm cần cải thiện nhất. "
+        "(2) Lỗi cần sửa: bảng 3 cột (Câu gốc | Bản sửa | Lý do ngắn), tối đa 5 lỗi quan trọng nhất "
+        "về bố cục, nội dung, từ vựng, ngữ pháp. "
+        "(3) Đoạn viết lại mẫu: viết lại một đoạn ngắn của bài, giữ ý của học sinh. "
+        "Nếu học sinh chưa gửi bài mà chỉ hỏi cách viết, hướng dẫn cấu trúc và cho ví dụ ngắn."
     ),
 }
 MODE_LIST = list(MODES)
 SPEAKING_MODES = {"Giao tiếp với Alex", "Speaking IELTS"}
 
 HERO = {
-    "Hỏi đáp kiến thức": ("Có gì chưa hiểu, hỏi E-HERO", "Từ vựng, ngữ pháp, mẹo làm đề THPT, giải đáp ngắn gọn và dựa trên tài liệu thầy cô đã duyệt."),
+    "Hỏi đáp kiến thức": ("Hỏi gì về tiếng Anh cũng được", "Từ vựng, ngữ pháp, mẹo làm đề THPT. Nếu có tài liệu của thầy cô, AI sẽ dựa vào đó và ghi rõ nguồn."),
     "Giao tiếp với Alex": ("Nói chuyện với Alex", "Bấm micro và nói. AI chép lại lời bạn, sửa một lỗi mỗi lượt và trả lời bằng giọng nói."),
     "Speaking IELTS": ("Phòng thi IELTS Speaking", "Trả lời từng câu hỏi như thi thật. Sau mỗi câu bạn nhận nhận xét theo 4 tiêu chí và band ước lượng."),
-    "Luyện thi VSTEP/THPT": ("Luyện thi VSTEP và THPT", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
+    "Luyện thi VSTEP/THPT": ("Chấm bài viết trong vài giây", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
 }
 
 SUGGESTIONS = {
@@ -413,6 +469,40 @@ PLACEHOLDER = {
     "Speaking IELTS": "Bấm micro để trả lời giám khảo...",
     "Luyện thi VSTEP/THPT": "Dán bài viết của bạn vào đây...",
 }
+
+
+QUICK_ACTIONS = {
+    "Hỏi đáp kiến thức": [
+        ("Giải thích đơn giản hơn", "Hãy giải thích lại đơn giản hơn, dùng ví dụ gần gũi với học sinh."),
+        ("Cho thêm ví dụ", "Cho mình thêm 3 ví dụ khác."),
+        ("Ra bài tập nhỏ", "Ra cho mình 3 câu bài tập nhỏ để luyện phần vừa học, đáp án để ở cuối."),
+    ],
+    "Giao tiếp với Alex": [
+        ("Gợi ý cách trả lời", "I'm not sure what to say. Can you give me a sample answer I could use?"),
+        ("Nói chậm và dễ hơn", "Could you use simpler words, please?"),
+        ("Đổi chủ đề", "Let's change the topic, please."),
+    ],
+    "Speaking IELTS": [
+        ("Xem câu trả lời mẫu", "Please show me a band 7 sample answer to the last question."),
+        ("Câu hỏi tiếp theo", "Next question, please."),
+        ("Từ vựng nâng cao", "Give me 5 higher-level words or phrases I could use for this topic."),
+    ],
+    "Luyện thi VSTEP/THPT": [
+        ("Viết lại bài hoàn chỉnh", "Hãy viết lại cả bài của mình thành một bản hoàn chỉnh, giữ ý của mình."),
+        ("Giải thích các lỗi", "Giải thích kỹ hơn từng lỗi ở trên và quy tắc đằng sau."),
+        ("Cho đề luyện tiếp", "Cho mình một đề viết khác cùng dạng."),
+    ],
+}
+
+# Kiểm tra nhanh: mọi chế độ phải có đủ nội dung ở các từ điển bên dưới.
+for _name, _d in {
+    "HERO": HERO, "SUGGESTIONS": SUGGESTIONS,
+    "PLACEHOLDER": PLACEHOLDER, "QUICK_ACTIONS": QUICK_ACTIONS,
+}.items():
+    _missing = set(MODES) - set(_d)
+    if _missing:
+        st.error(f"{_name} đang thiếu chế độ: {', '.join(_missing)}. Hãy đồng bộ tên chế độ.")
+        st.stop()
 
 
 def build_system_prompt(mode, level, sources):
@@ -663,35 +753,49 @@ for key, default in {
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;800&display=swap');
-:root { --ink:#14213d; --signal:#ffd23f; --voice:#0f766e; --line:#d9e0ea; }
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+:root { --ink:#14213d; --signal:#ffd23f; --voice:#0f766e; --line:#dde3ec; --muted:#5b6b85; }
 html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro', system-ui, sans-serif; }
+.block-container { padding-top:2rem; max-width:1100px; }
+footer { visibility:hidden; }
 
-.hero { display:flex; align-items:center; justify-content:space-between; gap:24px;
-  padding:24px 30px; margin-bottom:14px; background:var(--ink); color:#fff; border-radius:20px; }
-.hero h1 { margin:0; font-size:1.9rem; font-weight:800; line-height:1.2; color:#fff; padding:0; }
-.hero p { margin:8px 0 0; color:#c9d3e6; max-width:52ch; line-height:1.55; }
-.wave { display:flex; align-items:center; gap:5px; height:56px; flex-shrink:0; }
-.wave i { display:block; width:6px; border-radius:3px; background:var(--signal); }
-.wave i:nth-child(1){height:18px} .wave i:nth-child(2){height:36px} .wave i:nth-child(3){height:52px}
-.wave i:nth-child(4){height:30px} .wave i:nth-child(5){height:44px} .wave i:nth-child(6){height:22px}
-.wave i:nth-child(7){height:34px}
+[data-testid="stSidebar"] { border-right:1px solid var(--line); }
+.brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.15rem; color:var(--ink); padding:4px 0 12px; }
+[data-testid="stSidebar"] [role="radiogroup"] label { padding:8px 12px; border-radius:10px; width:100%; }
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#e6f4f1; font-weight:600; }
 
-.doc-row { background:#fff; border:1px solid var(--line); border-left:5px solid var(--voice);
-  border-radius:10px; padding:12px 16px; margin-bottom:10px; }
-.doc-row.wait { border-left-color:var(--signal); }
-.doc-row small { color:#5b6b85; }
+.page-head h1 { margin:0; padding:0; font-size:1.9rem; font-weight:700; color:var(--ink); line-height:1.25; }
+.page-head p { margin:.4rem 0 1.1rem; color:var(--muted); line-height:1.55; max-width:62ch; }
+
+.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:.2rem 0 1rem; }
+.step { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.step b { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%;
+  background:var(--ink); color:var(--signal); margin-bottom:8px; font-size:.85rem; }
+.step span { display:block; color:var(--ink); font-weight:600; }
+.step small { color:var(--muted); line-height:1.5; }
+
+[data-testid="stPills"] button { border-radius:99px; min-height:44px; font-weight:600; }
+[data-testid="stChatInput"] { border-radius:28px; }
+[data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
+[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.stButton > button { border-radius:10px; font-weight:600; min-height:44px; }
+
+.doc-row { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 16px; margin-bottom:10px; }
+.doc-row.wait { background:#fffbea; }
+.doc-row small { color:var(--muted); }
 
 .flash { background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px 28px; text-align:center; }
-.flash .w { font-size:2.2rem; font-weight:800; color:var(--ink); }
-.flash .p { color:#5b6b85; margin-top:4px; }
+.flash .w { font-size:2.2rem; font-weight:700; color:var(--ink); }
+.flash .p { color:var(--muted); margin-top:4px; }
 
 .status { display:inline-block; padding:3px 10px; border-radius:99px; font-size:.82rem; background:#e6f4f1; color:var(--voice); }
 .status.warn { background:#fff3cd; color:#7a5b00; }
 
-[data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:14px; }
-.stButton > button { border-radius:10px; font-weight:600; }
-@media (max-width:700px) { .hero { flex-direction:column; align-items:flex-start; } }
+@media (max-width:700px) {
+  .block-container { padding:1rem; }
+  .steps { grid-template-columns:1fr; }
+  .page-head h1 { font-size:1.5rem; }
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -712,7 +816,13 @@ def transcript_markdown():
 
 
 with st.sidebar:
-    st.markdown("### E-HERO AI")
+    st.markdown(
+        '<div class="brand"><svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true">'
+        '<rect width="34" height="34" rx="9" fill="#14213d"/>'
+        '<path d="M9 20v-6M14 24V10M19 21v-8M24 19v-4" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>'
+        '</svg>E-HERO AI</div>',
+        unsafe_allow_html=True,
+    )
     page = st.radio(
         "Trang",
         ["Trò chuyện", "Luyện đề", "Sổ từ vựng", "Kho tài liệu", "Kiểm duyệt"],
@@ -767,6 +877,10 @@ with st.sidebar:
             st.rerun()
 
 
+def chat_msg(role):
+    return st.chat_message(role, avatar=":material/graphic_eq:" if role == "assistant" else None)
+
+
 def retry_last(text):
     msgs = st.session_state.messages
     if msgs and msgs[-1]["role"] == "user":
@@ -795,10 +909,10 @@ def save_vocab_from(text):
 
 
 def render_actions(i, m, voice):
-    """Nút nghe lại và lưu từ vựng dưới mỗi câu trả lời."""
+    """Nút nghe lại, lưu từ vựng và góp ý dưới mỗi câu trả lời."""
     if m.get("sources"):
         st.caption("Nguồn tài liệu: " + ", ".join(m["sources"]))
-    b1, b2, _ = st.columns([1, 1, 8])
+    b1, b2, b3, b4, _ = st.columns([1, 1, 1, 1, 6])
     if b1.button("🔊", key=f"tts_{i}", help="Nghe câu trả lời"):
         with st.spinner("Đang tạo giọng đọc..."):
             wav = text_to_wav(m["content"], voice)
@@ -808,6 +922,15 @@ def render_actions(i, m, voice):
             st.caption("Chưa tạo được giọng đọc, bạn thử lại sau ít giây.")
     if b2.button("📌", key=f"vocab_{i}", help="Lưu từ vựng vào sổ"):
         save_vocab_from(m["content"])
+    voted = bool(m.get("voted"))
+    if b3.button("👍", key=f"up_{i}", help="Câu trả lời hữu ích", disabled=voted):
+        m["voted"] = 1
+        add_vote(1, m.get("sources"))
+        st.toast("Cảm ơn góp ý của bạn!")
+    if b4.button("👎", key=f"down_{i}", help="Câu trả lời chưa tốt", disabled=voted):
+        m["voted"] = -1
+        add_vote(-1, m.get("sources"))
+        st.toast("Đã ghi nhận, E-HERO sẽ cải thiện thêm.")
 
 
 # ==========================================
@@ -823,28 +946,38 @@ if page == "Trò chuyện":
         on_change=on_mode_change,
         label_visibility="collapsed",
     )
-    mode = st.session_state.get("mode_pick") or MODE_LIST[0]
+    mode = st.session_state.get("mode_pick")
+    if mode not in MODES:
+        mode = MODE_LIST[0]
     title, subtitle = HERO[mode]
+    persona = {"Giao tiếp với Alex": "Alex", "Speaking IELTS": "Giám khảo"}.get(mode, "E-HERO AI")
     st.markdown(
-        f"""<div class="hero"><div><h1>{html.escape(title)}</h1><p>{html.escape(subtitle)}</p></div>
-        <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>""",
+        f'<div class="page-head"><h1>{html.escape(title)}</h1><p>{html.escape(subtitle)}</p></div>',
         unsafe_allow_html=True,
     )
 
     if not st.session_state.messages:
+        st.markdown(
+            '<div class="steps">'
+            '<div class="step"><b>1</b><span>Chọn chế độ</span><small>Hỏi đáp, nói với Alex, thi IELTS hoặc chấm bài viết.</small></div>'
+            '<div class="step"><b>2</b><span>Bấm micro hoặc gõ</span><small>Nói tiếng Anh tự nhiên, AI sẽ chép lại lời bạn.</small></div>'
+            '<div class="step"><b>3</b><span>Nhận phản hồi</span><small>Sửa lỗi nhẹ nhàng, có dẫn nguồn tài liệu của thầy cô.</small></div>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
         cols = st.columns(4)
-        for col, (label, prompt) in zip(cols, SUGGESTIONS[mode]):
+        for col, (label, prompt) in zip(cols, SUGGESTIONS.get(mode, [])):
             if col.button(label, use_container_width=True):
                 st.session_state.pending_text = prompt
                 st.rerun()
 
     for i, m in enumerate(st.session_state.messages):
-        with st.chat_message(m["role"]):
+        with chat_msg(m["role"]):
             st.markdown(m["content"])
             if m["role"] == "assistant":
                 render_actions(i, m, voice_name)
 
-    chat_input = st.chat_input(PLACEHOLDER[mode], accept_audio=True)
+    chat_input = st.chat_input(PLACEHOLDER.get(mode, "Gõ câu hỏi của bạn..."), accept_audio=True)
 
     user_text, audio_bytes, audio_mime = st.session_state.pending_text, None, "audio/wav"
     st.session_state.pending_text = None
@@ -874,19 +1007,20 @@ if page == "Trò chuyện":
         system_prompt = build_system_prompt(mode, level, sources)
         history = history_contents()
         reply_text, error = "", None
+        t0 = time.time()
 
         if audio_bytes:
-            with st.chat_message("user"):
+            with chat_msg("user"):
                 st.audio(audio_bytes, format=audio_mime)
                 status = st.empty()
                 status.caption("Đang nhận dạng giọng nói...")
             try:
-                with st.spinner("E-HERO AI đang nghe và suy nghĩ..."):
+                with st.spinner(f"{persona} đang nghe..."):
                     turn = ask_voice(system_prompt, history, audio_bytes, audio_mime)
                 status.markdown(f"🎙️ {turn.transcript}")
                 st.session_state.messages.append({"role": "user", "content": f"🎙️ {turn.transcript}"})
                 reply_text = turn.reply
-                with st.chat_message("assistant"):
+                with chat_msg("assistant"):
                     st.markdown(reply_text)
             except AIError as e:
                 error = str(e)
@@ -894,12 +1028,12 @@ if page == "Trò chuyện":
                 error = f"Không thể xử lý yêu cầu: {e}"
         else:
             st.session_state.messages.append({"role": "user", "content": user_text})
-            with st.chat_message("user"):
+            with chat_msg("user"):
                 st.markdown(user_text)
             contents = history + [
                 types.Content(role="user", parts=[types.Part.from_text(text=user_text)])
             ]
-            with st.chat_message("assistant"):
+            with chat_msg("assistant"):
                 try:
                     reply_text = st.write_stream(stream_reply(system_prompt, contents))
                 except AIError as e:
@@ -907,6 +1041,15 @@ if page == "Trò chuyện":
                 except Exception as e:
                     error = f"Không thể xử lý yêu cầu: {e}"
 
+        log_event(
+            mode=mode,
+            kind="voice" if audio_bytes else "text",
+            ms=int((time.time() - t0) * 1000),
+            model=st.session_state.active_model or "",
+            ok=bool(reply_text) and not error,
+            src=len(sources),
+            err=(error or "")[:80],
+        )
         if error:
             st.error(error)
             # Giữ lại câu hỏi để học sinh bấm thử lại mà không phải gõ lại
@@ -928,6 +1071,20 @@ if page == "Trò chuyện":
                 else:
                     st.caption("Chưa tạo được giọng đọc, bạn vẫn đọc được văn bản ở trên.")
             render_actions(idx, new_msg, voice_name)
+
+    # Gợi ý hành động tiếp theo cho câu trả lời mới nhất
+    _msgs = st.session_state.messages
+    if _msgs and _msgs[-1]["role"] == "assistant":
+        _quick = QUICK_ACTIONS.get(mode, [])
+        if _quick:
+            st.caption("Gợi ý tiếp theo")
+            _qcols = st.columns(len(_quick))
+            for _j, (_label, _prompt) in enumerate(_quick):
+                if _qcols[_j].button(_label, key=f"quick_{len(_msgs)}_{_j}", use_container_width=True):
+                    st.session_state.pending_text = _prompt
+                    st.rerun()
+    st.caption("Không nhập thông tin cá nhân. AI có thể sai, hãy đối chiếu với nguồn tài liệu.")
+
 
 # ==========================================
 # TRANG 2: LUYỆN ĐỀ
@@ -1152,6 +1309,10 @@ else:
     waiting = [d for d in store["docs"] if d["trang_thai"] == "Chờ phê duyệt"]
     approved = [d for d in store["docs"] if d["trang_thai"] == "Đã phê duyệt"]
 
+    a1, a2, a3 = st.columns(3)
+    a1.metric("Chờ duyệt", len(waiting))
+    a2.metric("Đã duyệt", len(approved))
+    a3.metric("Ký tự đã duyệt", f"{sum(len(d['noi_dung']) for d in approved):,}")
     st.markdown(f"### Chờ duyệt ({len(waiting)})")
     if not waiting:
         st.info("Không có tài liệu nào đang chờ.")
@@ -1184,6 +1345,44 @@ else:
                 store["docs"] = [x for x in store["docs"] if x["id"] != d["id"]]
                 save_store(store)
             st.rerun()
+
+    st.markdown("### Thống kê sử dụng")
+    _log = get_log()
+    with _log["lock"]:
+        _events, _votes = list(_log["events"]), list(_log["votes"])
+    if not _events:
+        st.info("Chưa có lượt dùng nào được ghi nhận kể từ lần khởi động gần nhất.")
+    else:
+        _done = [e for e in _events if e["ok"]]
+        _times = sorted(e["ms"] for e in _done)
+        _up = sum(1 for v in _votes if v["vote"] > 0)
+        s1, s2, s3, s4 = st.columns(4)
+        s1.metric("Số lượt hỏi", len(_events))
+        s2.metric("Tỷ lệ thành công", f"{100 * len(_done) / len(_events):.0f}%")
+        s3.metric(
+            "Phản hồi (trung vị)",
+            f"{_times[len(_times) // 2] / 1000:.1f} giây" if _times else "-",
+        )
+        s4.metric("Hài lòng", f"{100 * _up / len(_votes):.0f}% ({len(_votes)} lượt)" if _votes else "-")
+        _with_src = sum(1 for e in _done if e["src"] > 0)
+        st.caption(
+            f"{_with_src}/{len(_done)} câu trả lời có dùng tài liệu đã duyệt. "
+            "Hệ thống không lưu nội dung câu hỏi của học sinh. "
+            "Nhật ký nằm trong bộ nhớ và mất khi ứng dụng khởi động lại, hãy tải CSV trước đó."
+        )
+        _by_mode = Counter(e["mode"] for e in _events)
+        st.dataframe(
+            [{"Chế độ": k, "Số lượt": v} for k, v in _by_mode.most_common()],
+            hide_index=True, use_container_width=True,
+        )
+        _buf = io.StringIO()
+        _w = csv.DictWriter(_buf, fieldnames=["ts", "mode", "kind", "ms", "model", "ok", "src", "err"])
+        _w.writeheader()
+        _w.writerows(_events)
+        st.download_button(
+            "Tải nhật ký sử dụng (CSV)", _buf.getvalue().encode("utf-8-sig"),
+            file_name="nhat_ky_su_dung.csv", mime="text/csv",
+        )
 
     st.markdown("### Sao lưu và khôi phục")
     st.caption(
