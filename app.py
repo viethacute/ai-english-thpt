@@ -352,19 +352,19 @@ MODES = {
         "Từ vựng: nghĩa, từ loại, một ví dụ. Ngữ pháp: công thức, cách dùng, một ví dụ. "
         "Mặc định 80-150 từ; câu đơn giản chỉ 30-60 từ. Chỉ mở rộng khi được yêu cầu."
     ),
-    "Luyện nói với Alex": (
+    "Giao tiếp với Alex": (
         "Bạn đóng vai Alex, một người bạn bản xứ thân thiện. Chỉ nói TIẾNG ANH, "
         "mỗi lượt 2-3 câu ngắn, kết thúc bằng một câu hỏi để học sinh nói tiếp. "
         "Nếu học sinh mắc lỗi ngữ pháp hoặc từ vựng, sửa nhẹ nhàng ở cuối bằng một dòng "
         "bắt đầu bằng 'Tip:' (viết bằng tiếng Việt, tối đa 1 lỗi mỗi lượt)."
     ),
-    "Thi nói IELTS": (
+    "Speaking IELTS": (
         "Bạn là giám khảo IELTS Speaking. Hỏi lần lượt từng câu (Part 1, 2, 3), "
         "bằng tiếng Anh, không giải thích dài. Sau khi học sinh trả lời, nhận xét ngắn "
         "bằng tiếng Việt theo 4 tiêu chí (Fluency, Vocabulary, Grammar, Pronunciation), "
         "gợi ý ước lượng band, rồi hỏi câu tiếp theo bằng tiếng Anh."
     ),
-    "Luyện viết VSTEP/THPT": (
+    "Luyện thi VSTEP/THPT": (
         "Học sinh sẽ gửi bài viết. Chấm theo bố cục, nội dung, từ vựng, ngữ pháp. "
         "Liệt kê tối đa 5 lỗi quan trọng nhất kèm bản sửa, rồi viết lại một đoạn mẫu. "
         "Nhận xét bằng tiếng Việt."
@@ -387,19 +387,19 @@ SUGGESTIONS = {
         ("Mẹo làm bài đọc", "Cho mình 5 mẹo làm bài đọc hiểu trong đề tốt nghiệp THPT."),
         ("Từ vựng chủ đề môi trường", "Cho mình 8 từ vựng chủ đề môi trường ở trình độ của mình."),
     ],
-    "Luyện nói với Alex": [
+    "Giao tiếp với Alex": [
         ("Nói về môi trường", "Hello Alex! Let's talk about environmental protection."),
         ("Nói về sở thích", "Hi Alex! Can we talk about my hobbies?"),
         ("Nói về trường học", "Hey Alex, let's talk about my school life."),
         ("Nói về kế hoạch tương lai", "Hi Alex! I want to talk about my plans after high school."),
     ],
-    "Thi nói IELTS": [
+    "Speaking IELTS": [
         ("Bắt đầu Part 1", "Hello, I'm ready. Please start Part 1."),
         ("Bắt đầu Part 2", "I'd like to practise Part 2. Please give me a cue card."),
         ("Luyện Part 3", "Let's practise Part 3 with a topic about technology."),
         ("Thi thử cả bài", "Please run a short full speaking test, starting with Part 1."),
     ],
-    "Luyện viết VSTEP/THPT": [
+    "Luyện thi VSTEP/THPT": [
         ("Thư phàn nàn VSTEP", "Hướng dẫn cấu trúc viết thư phàn nàn trong VSTEP kèm ví dụ."),
         ("IELTS Writing 2", "Hướng dẫn cách viết IELTS Writing Task 2 cho người mới bắt đầu."),
         ("Cho đề viết đoạn văn", "Cho mình một đề viết đoạn văn 120 từ phù hợp trình độ của mình."),
@@ -409,9 +409,9 @@ SUGGESTIONS = {
 
 PLACEHOLDER = {
     "Hỏi đáp kiến thức": "Gõ câu hỏi về từ vựng, ngữ pháp...",
-    "Luyện nói với Alex": "Bấm micro để nói, hoặc gõ tiếng Anh...",
-    "Thi nói IELTS": "Bấm micro để trả lời giám khảo...",
-    "Luyện viết VSTEP/THPT": "Dán bài viết của bạn vào đây...",
+    "Giao tiếp với Alex": "Bấm micro để nói, hoặc gõ tiếng Anh...",
+    "Speaking IELTS": "Bấm micro để trả lời giám khảo...",
+    "Luyện thi VSTEP/THPT": "Dán bài viết của bạn vào đây...",
 }
 
 
