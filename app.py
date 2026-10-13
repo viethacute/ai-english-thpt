@@ -371,13 +371,13 @@ MODES = {
     ),
 }
 MODE_LIST = list(MODES)
-SPEAKING_MODES = {"Luyện nói với Alex", "Thi nói IELTS"}
+SPEAKING_MODES = {"Giao tiếp với Alex", "Speaking IELTS"}
 
 HERO = {
     "Hỏi đáp kiến thức": ("Hỏi gì về tiếng Anh cũng được", "Từ vựng, ngữ pháp, mẹo làm đề THPT. Nếu có tài liệu của thầy cô, AI sẽ dựa vào đó và ghi rõ nguồn."),
-    "Luyện nói với Alex": ("Nói chuyện với Alex", "Bấm micro và nói. AI chép lại lời bạn, sửa một lỗi mỗi lượt và trả lời bằng giọng nói."),
-    "Thi nói IELTS": ("Phòng thi IELTS Speaking", "Trả lời từng câu hỏi như thi thật. Sau mỗi câu bạn nhận nhận xét theo 4 tiêu chí và band ước lượng."),
-    "Luyện viết VSTEP/THPT": ("Chấm bài viết trong vài giây", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
+    "Giao tiếp với Alex": ("Nói chuyện với Alex", "Bấm micro và nói. AI chép lại lời bạn, sửa một lỗi mỗi lượt và trả lời bằng giọng nói."),
+    "Speaking IELTS": ("Phòng thi IELTS Speaking", "Trả lời từng câu hỏi như thi thật. Sau mỗi câu bạn nhận nhận xét theo 4 tiêu chí và band ước lượng."),
+    "Luyện thi VSTEP/THPT": ("Luyện thi VSTEP và THPT", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
 }
 
 SUGGESTIONS = {
