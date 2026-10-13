@@ -198,3 +198,50 @@ CHỦ ĐỀ 10: HEALTH AND LONGEVITY (SỨC KHỎE VÀ SỰ TRƯỜNG THỌ)
 - Fitness (n): Sự cân đối, khỏe mạnh của cơ thể
 - Sedentary lifestyle (n): Lối sống lười vận động (ngồi nhiều)
 ======================================================================
+
+1. Cách làm và chấm điểm Listening & Reading
+
+• Cách làm:
+	• Cả hai bài thi đều có 40 câu hỏi tương ứng với 40 điểm tối đa (mỗi câu trả lời đúng được 1 điểm).
+	• Listening: Gồm 4 phần (khoảng 30 phút nghe + 10 phút chuyển đáp án), nghe một lần duy nhất.
+	• Reading: Gồm 3 bài đọc (60 phút), có sự khác biệt giữa dạng Academic (Học thuật) và General Training (Tổng quát).
+• Cách chấm điểm:
+	• Số câu đúng được quy đổi sang Band điểm từ 1.0 đến 9.0 theo bảng chuẩn của IDP/British Council.
+	• Ví dụ: Đúng 30-32 câu được khoảng Band 7.0 (Academic Reading).
+
+2. Cách làm và chấm điểm Writing
+
+• Cách làm:
+	• Task 1: Tối thiểu 150 từ (Academic viết báo cáo phân tích biểu đồ/sơ đồ; General viết thư). Khuyên làm trong khoảng 20 phút.
+	• Task 2: Tối thiểu 250 từ (Viết bài luận quan điểm/thảo luận). Khuyên làm trong khoảng 40 phút.
+	• Tổng thời gian làm bài là 60 phút.
+• Cách chấm điểm:
+	• Trọng số: Task 2 chiếm 2/3 tổng số điểm bài Writing, còn Task 1 chiếm 1/3.
+	• Chấm dựa trên 4 tiêu chí (mỗi tiêu chí chiếm 25% điểm):
+		1. Task Achievement / Task Response (TA): Mức độ hoàn thành yêu cầu đề bài.
+		2. Coherence and Cohesion (CC): Tính mạch lạc và liên kết câu/đoạn.
+		3. Lexical Resource (LR): Độ phong phú và chính xác của từ vựng.
+		4. Grammatical Range and Accuracy (GRA): Độ đa dạng và chính xác của ngữ pháp.
+
+3. Cách làm và chấm điểm Speaking
+
+• Cách làm:
+	• Là một cuộc phỏng vấn trực tiếp 1-1 với giám khảo (kéo dài khoảng 11-14 phút), chia làm 3 phần:
+		• Part 1: Giới thiệu bản thân và hỏi đáp các chủ đề quen thuộc (4-5 phút).
+		• Part 2: Trình bày bài nói cá nhân dựa trên thẻ đề bài (Cue card) sau 1 phút chuẩn bị (3-4 phút).
+		• Part 3: Thảo luận sâu hơn các câu hỏi liên quan đến chủ đề ở Part 2 (4-5 phút).
+• Cách chấm điểm:
+	• Chấm dựa trên 4 tiêu chí (trọng lượng bằng nhau):
+		1. Fluency and Coherence (FC): Sự trôi chảy và mạch lạc (độ ngập ngừng, cách nối ý).
+		2. Lexical Resource (LR): V vốn từ vựng, khả năng dùng từ linh hoạt và từ ít gặp.
+		3. Grammatical Range and Accuracy (GRA): Sự đa dạng cấu trúc câu và độ chính xác ngữ pháp.
+		4. Pronunciation: Phát âm rõ ràng, trọng âm, ngữ điệu và nhịp điệu.
+
+4. Cách tính điểm tổng (Overall)
+
+• Điểm Overall là điểm trung bình cộng của 4 kỹ năng:
+\(\text{Overall}=\frac{\text{Listening}+\text{Reading}+\text{Writing}+\text{Speaking}}{4}\)
+• Quy tắc làm tròn số:
+	• Nếu số lẻ là .25 → làm tròn lên .5 (Ví dụ: 6.25 → 6.5).
+	• Nếu số lẻ là .5 hoặc .51 đến .74 → giữ nguyên hoặc làm tròn theo quy chuẩn.
+	• Nếu số lẻ từ .75 trở lên → làm tròn lên số nguyên tiếp theo (Ví dụ: 6.75 → 7.0).
