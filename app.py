@@ -1031,11 +1031,6 @@ hr {
 }
 </style>
 """, unsafe_allow_html=True)
-</style>
-""",
-    unsafe_allow_html=True,
-)
-
 
 def on_mode_change():
     picked = st.session_state.get("mode_pick") or MODE_LIST[0]
