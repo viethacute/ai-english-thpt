@@ -425,19 +425,6 @@ MODES = {
         "(3) Đoạn viết lại mẫu: viết lại một đoạn ngắn của bài, giữ ý của học sinh. "
         "Nếu học sinh chưa gửi bài mà chỉ hỏi cách viết, hướng dẫn cấu trúc và cho ví dụ ngắn."
     ),
-    "Từ vựng theo chủ đề": (
-        "Giúp học sinh học từ vựng tiếng Anh theo chủ đề. Với mỗi từ, nêu từ loại, nghĩa tiếng Việt, "
-        "phát âm IPA nếu chắc chắn, một ví dụ ngắn và một collocation thông dụng. "
-        "Ưu tiên từ vựng phù hợp chương trình THPT; tránh liệt kê quá nhiều từ trong một lượt."
-    ),
-    "Ngữ pháp từng bước": (
-        "Giải thích ngữ pháp tiếng Anh theo trình tự: công thức, cách dùng, dấu hiệu nhận biết, "
-        "lỗi thường gặp, ví dụ và 2 câu luyện tập ngắn. Dùng tiếng Việt dễ hiểu, phù hợp học sinh THPT."
-    ),
-    "Luyện đọc hiểu": (
-        "Hỗ trợ luyện đọc hiểu tiếng Anh. Có thể tạo đoạn đọc phù hợp trình độ, câu hỏi trắc nghiệm, "
-        "giải thích đáp án và chỉ ra từ khóa trong bài. Không khẳng định đoạn đọc là đề thi thật nếu không có nguồn."
-    ),
 }
 MODE_LIST = list(MODES)
 SPEAKING_MODES = {"Giao tiếp với Alex", "Speaking IELTS"}
@@ -446,10 +433,7 @@ HERO = {
     "Hỏi đáp kiến thức": ("Hỏi gì về tiếng Anh cũng được", "Từ vựng, ngữ pháp, mẹo làm đề THPT. Nếu có tài liệu của thầy cô, AI sẽ dựa vào đó và ghi rõ nguồn."),
     "Giao tiếp với Alex": ("Nói chuyện với Alex", "Bấm micro và nói. AI chép lại lời bạn, sửa một lỗi mỗi lượt và trả lời bằng giọng nói."),
     "Speaking IELTS": ("Phòng thi IELTS Speaking", "Trả lời từng câu hỏi như thi thật. Sau mỗi câu bạn nhận nhận xét theo 4 tiêu chí và band ước lượng."),
-    "Luyện thi VSTEP/THPT": ("Phòng luyện viết", "Dán bài viết của bạn vào khung chat. Nhận lỗi quan trọng và gợi ý chỉnh sửa."),
-    "Từ vựng theo chủ đề": ("Mở rộng vốn từ", "Học từ theo chủ đề, từ loại, ví dụ và cụm từ thường gặp."),
-    "Ngữ pháp từng bước": ("Hiểu ngữ pháp dễ hơn", "Học công thức, cách dùng, ví dụ và luyện tập ngắn."),
-    "Luyện đọc hiểu": ("Phòng luyện đọc hiểu", "Luyện đọc theo trình độ, tìm từ khóa và hiểu vì sao đáp án đúng."),
+    "Luyện thi VSTEP/THPT": ("Chấm bài viết trong vài giây", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
 }
 
 SUGGESTIONS = {
@@ -477,24 +461,6 @@ SUGGESTIONS = {
         ("Cho đề viết đoạn văn", "Cho mình một đề viết đoạn văn 120 từ phù hợp trình độ của mình."),
         ("Mở bài và kết bài mẫu", "Cho mình mẫu câu mở bài và kết bài cho bài luận nêu quan điểm."),
     ],
-    "Từ vựng theo chủ đề": [
-        ("Từ vựng công nghệ", "Cho mình 8 từ vựng chủ đề công nghệ, nghĩa, từ loại, ví dụ và collocation."),
-        ("Học theo chủ đề môi trường", "Dạy mình 8 từ vựng chủ đề môi trường ở trình độ B1."),
-        ("Phân biệt từ dễ nhầm", "Phân biệt affect/effect và cho bài tập ngắn."),
-        ("Ôn từ bằng câu hỏi", "Kiểm tra mình 5 từ vựng tiếng Anh theo dạng trắc nghiệm."),
-    ],
-    "Ngữ pháp từng bước": [
-        ("Câu điều kiện", "Giải thích 4 loại câu điều kiện, ví dụ và 2 câu luyện tập."),
-        ("Mệnh đề quan hệ", "Giải thích mệnh đề quan hệ bằng tiếng Việt và cho bài tập."),
-        ("Thì tiếng Anh", "Tóm tắt cách dùng các thì thường gặp trong đề THPT."),
-        ("Đảo ngữ", "Giải thích đảo ngữ hay gặp trong đề THPT và cho 3 câu bài tập."),
-    ],
-    "Luyện đọc hiểu": [
-        ("Tạo bài đọc B1", "Tạo một đoạn đọc tiếng Anh trình độ B1 khoảng 180 từ và 5 câu hỏi."),
-        ("Mẹo tìm từ khóa", "Hướng dẫn cách tìm từ khóa và paraphrase trong bài đọc hiểu."),
-        ("Luyện dạng True/False", "Tạo một bài đọc ngắn và 4 nhận định True/False/Not Given."),
-        ("Giải thích đáp án", "Hướng dẫn cách giải câu hỏi đọc hiểu bằng cách trích dẫn từ khóa trong bài."),
-    ],
 }
 
 PLACEHOLDER = {
@@ -502,9 +468,6 @@ PLACEHOLDER = {
     "Giao tiếp với Alex": "Bấm micro để nói, hoặc gõ tiếng Anh...",
     "Speaking IELTS": "Bấm micro để trả lời giám khảo...",
     "Luyện thi VSTEP/THPT": "Dán bài viết của bạn vào đây...",
-    "Từ vựng theo chủ đề": "Nhập chủ đề hoặc từ vựng bạn muốn học...",
-    "Ngữ pháp từng bước": "Nhập điểm ngữ pháp bạn đang vướng...",
-    "Luyện đọc hiểu": "Nhập chủ đề hoặc dạng câu hỏi đọc hiểu...",
 }
 
 
@@ -528,21 +491,6 @@ QUICK_ACTIONS = {
         ("Viết lại bài hoàn chỉnh", "Hãy viết lại cả bài của mình thành một bản hoàn chỉnh, giữ ý của mình."),
         ("Giải thích các lỗi", "Giải thích kỹ hơn từng lỗi ở trên và quy tắc đằng sau."),
         ("Cho đề luyện tiếp", "Cho mình một đề viết khác cùng dạng."),
-    ],
-    "Từ vựng theo chủ đề": [
-        ("Tạo thẻ ghi nhớ", "Chọn 6 từ quan trọng từ nội dung vừa học, trình bày dạng thẻ ghi nhớ."),
-        ("Kiểm tra nhanh", "Kiểm tra mình 5 câu về các từ vừa học, chưa hiện đáp án ngay."),
-        ("Thêm ví dụ", "Cho thêm ví dụ tự nhiên và collocation cho các từ vừa học."),
-    ],
-    "Ngữ pháp từng bước": [
-        ("Giải thích dễ hơn", "Giải thích lại bằng cách đơn giản hơn, dùng ví dụ dễ nhớ."),
-        ("Luyện thêm", "Tạo 5 câu trắc nghiệm về điểm ngữ pháp vừa học, đáp án và giải thích ở cuối."),
-        ("Lỗi hay gặp", "Nêu 3 lỗi học sinh Việt Nam thường gặp với điểm ngữ pháp này."),
-    ],
-    "Luyện đọc hiểu": [
-        ("Câu hỏi khó hơn", "Tạo thêm 3 câu hỏi đọc hiểu khó hơn dựa trên đoạn vừa tạo."),
-        ("Từ vựng trong bài", "Trích 8 từ/cụm từ quan trọng trong bài đọc, giải thích bằng tiếng Việt."),
-        ("Giải thích từ khóa", "Giải thích vì sao đáp án đúng dựa trên từ khóa và câu trong bài đọc."),
     ],
 }
 
@@ -571,13 +519,6 @@ def build_system_prompt(mode, level, sources):
         for name, text in sources:
             prompt += f"\n[Nguồn: {name}]\n{text}\n"
         prompt += "=== HẾT TÀI LIỆU ===\n"
-    detail = st.session_state.get("answer_detail", "Vừa đủ")
-    detail_rules = {
-        "Ngắn gọn": "Ưu tiên trả lời trong 3-6 câu, chỉ nêu ý cốt lõi và một ví dụ nếu cần.",
-        "Vừa đủ": "Giải thích vừa phải, có ví dụ ngắn và tránh lan man.",
-        "Chi tiết": "Giải thích kỹ hơn theo từng bước, thêm ví dụ và lỗi thường gặp khi phù hợp; vẫn phải đúng trọng tâm.",
-    }
-    prompt += "\\nMỨC ĐỘ CHI TIẾT: " + detail_rules.get(detail, detail_rules["Vừa đủ"])
     return prompt
 
 
@@ -812,60 +753,48 @@ for key, default in {
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
-:root {
-  --paper:#f7f7fb; --surface:#ffffff; --ink:#252536; --muted:#77778c;
-  --line:#e7e6ef; --accent:#8b83c9; --accent-soft:#f0eefb;
-  --accent-dark:#5d559d; --success:#287a67; --warn:#a06a18;
-}
-html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro',system-ui,sans-serif; color:var(--ink); }
-.stApp { background:var(--paper); }
-.block-container { padding-top:1.6rem; padding-bottom:3rem; max-width:1240px; }
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+:root { --ink:#14213d; --signal:#ffd23f; --voice:#0f766e; --line:#dde3ec; --muted:#5b6b85; }
+html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro', system-ui, sans-serif; }
+.block-container { padding-top:2rem; max-width:1100px; }
 footer { visibility:hidden; }
-[data-testid="stSidebar"] { background:#fff; border-right:1px solid var(--line); }
-[data-testid="stSidebar"] > div { padding-top:1.1rem; }
-.brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.15rem; color:var(--ink); padding:4px 0 18px; letter-spacing:-.03em; }
-.brand svg { box-shadow:0 4px 12px #8b83c922; }
-[data-testid="stSidebar"] [role="radiogroup"] label { padding:9px 12px; border-radius:12px; width:100%; }
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:var(--accent-soft); color:var(--accent-dark); font-weight:700; }
-.page-head { padding:1.25rem 1.4rem; background:var(--surface); border:1px solid var(--line); border-radius:22px; margin-bottom:1rem; box-shadow:0 5px 20px #302b5510; }
-.page-head h1 { margin:0; padding:0; font-size:1.9rem; font-weight:800; letter-spacing:-.045em; color:var(--ink); line-height:1.25; }
-.page-head p { margin:.5rem 0 0; color:var(--muted); line-height:1.65; max-width:70ch; }
-.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:.5rem 0 1rem; }
-.step { background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 4px 16px #302b5508; }
-.step b { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:10px; background:var(--accent-soft); color:var(--accent-dark); margin-bottom:10px; font-size:.9rem; }
-.step span { display:block; color:var(--ink); font-weight:700; margin-bottom:4px; }
-.step small { color:var(--muted); line-height:1.6; }
-[data-testid="stPills"] { gap:8px; }
-[data-testid="stPills"] button { border-radius:999px; min-height:42px; font-weight:600; border:1px solid var(--line); }
-[data-testid="stPills"] button[aria-pressed="true"] { background:var(--accent-soft); border-color:#c9c3ef; color:var(--accent-dark); }
-[data-testid="stChatInput"] { border-radius:18px; border:1px solid #d8d5e8; background:#fff; box-shadow:0 5px 18px #302b550a; }
-[data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; box-shadow:0 3px 12px #302b5506; }
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) { border-color:#e3def7; }
-[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:13px 15px; box-shadow:0 4px 16px #302b5508; }
-.stButton > button, [data-testid="stDownloadButton"] button { border-radius:12px; font-weight:600; min-height:42px; border-color:#dedbea; transition:all .15s ease; }
-.stButton > button:hover, [data-testid="stDownloadButton"] button:hover { border-color:#aaa2df; color:var(--accent-dark); }
-.stButton > button[kind="primary"] { background:var(--accent); border-color:var(--accent); color:white; }
-.stButton > button[kind="primary"]:hover { background:var(--accent-dark); color:white; }
-.stTextInput input, .stTextArea textarea, .stSelectbox [data-baseweb="select"], .stNumberInput input { border-radius:12px !important; }
-.stTabs [data-baseweb="tab-list"] { gap:8px; }
-.stTabs [data-baseweb="tab"] { border-radius:10px 10px 0 0; padding:10px 14px; }
-.doc-row { background:#fff; border:1px solid var(--line); border-radius:15px; padding:13px 16px; margin-bottom:10px; }
-.doc-row.wait { background:#fffaf0; border-color:#f2e5c9; }
+
+[data-testid="stSidebar"] { border-right:1px solid var(--line); }
+.brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.15rem; color:var(--ink); padding:4px 0 12px; }
+[data-testid="stSidebar"] [role="radiogroup"] label { padding:8px 12px; border-radius:10px; width:100%; }
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#e6f4f1; font-weight:600; }
+
+.page-head h1 { margin:0; padding:0; font-size:1.9rem; font-weight:700; color:var(--ink); line-height:1.25; }
+.page-head p { margin:.4rem 0 1.1rem; color:var(--muted); line-height:1.55; max-width:62ch; }
+
+.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:.2rem 0 1rem; }
+.step { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.step b { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%;
+  background:var(--ink); color:var(--signal); margin-bottom:8px; font-size:.85rem; }
+.step span { display:block; color:var(--ink); font-weight:600; }
+.step small { color:var(--muted); line-height:1.5; }
+
+[data-testid="stPills"] button { border-radius:99px; min-height:44px; font-weight:600; }
+[data-testid="stChatInput"] { border-radius:28px; }
+[data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
+[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.stButton > button { border-radius:10px; font-weight:600; min-height:44px; }
+
+.doc-row { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 16px; margin-bottom:10px; }
+.doc-row.wait { background:#fffbea; }
 .doc-row small { color:var(--muted); }
-.flash { background:#fff; border:1px solid var(--line); border-radius:22px; padding:34px 28px; text-align:center; box-shadow:0 8px 26px #302b550c; }
-.flash .w { font-size:2.2rem; font-weight:800; color:var(--ink); letter-spacing:-.04em; }
+
+.flash { background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px 28px; text-align:center; }
+.flash .w { font-size:2.2rem; font-weight:700; color:var(--ink); }
 .flash .p { color:var(--muted); margin-top:4px; }
-.status { display:inline-block; padding:5px 10px; border-radius:999px; font-size:.78rem; background:#eaf5f1; color:var(--success); }
-.status.warn { background:#fff4df; color:var(--warn); }
-div[data-testid="stExpander"] { border:1px solid var(--line); border-radius:14px; background:#fff; }
-hr { border-color:var(--line); }
+
+.status { display:inline-block; padding:3px 10px; border-radius:99px; font-size:.82rem; background:#e6f4f1; color:var(--voice); }
+.status.warn { background:#fff3cd; color:#7a5b00; }
+
 @media (max-width:700px) {
-  .block-container { padding:1rem .8rem 2rem; }
+  .block-container { padding:1rem; }
   .steps { grid-template-columns:1fr; }
-  .page-head { padding:1rem; border-radius:17px; }
-  .page-head h1 { font-size:1.45rem; }
-  [data-testid="stChatMessage"] { padding:10px 11px; }
+  .page-head h1 { font-size:1.5rem; }
 }
 </style>
 """,
@@ -896,17 +825,11 @@ with st.sidebar:
     )
     page = st.radio(
         "Trang",
-        ["Trò chuyện", "Luyện đề", "Sổ từ vựng", "Lộ trình học", "Kho tài liệu", "Kiểm duyệt"],
+        ["Trò chuyện", "Luyện đề", "Sổ từ vựng", "Kho tài liệu", "Kiểm duyệt"],
         label_visibility="collapsed",
     )
 
     level = st.select_slider("Trình độ", ["A2", "B1", "B2", "C1"], value="B1")
-    st.session_state.answer_detail = st.selectbox(
-        "Độ chi tiết câu trả lời",
-        ["Ngắn gọn", "Vừa đủ", "Chi tiết"],
-        index=["Ngắn gọn", "Vừa đủ", "Chi tiết"].index(st.session_state.get("answer_detail", "Vừa đủ")),
-        help="Điều chỉnh độ dài giải thích của AI.",
-    )
 
     active = st.session_state.active_model
     if active and active != MODELS_CHAT[0]:
@@ -1278,61 +1201,7 @@ elif page == "Sổ từ vựng":
         st.caption("Sổ chỉ lưu trong phiên hiện tại. Hãy tải CSV về trước khi đóng trình duyệt.")
 
 # ==========================================
-# TRANG 4: LỘ TRÌNH HỌC
-# ==========================================
-
-elif page == "Lộ trình học":
-    st.markdown(
-        '<div class="page-head"><h1>Lộ trình học cá nhân</h1>'
-        '<p>Tạo lịch ôn tập gọn nhẹ theo mục tiêu, thời gian và nội dung bạn muốn cải thiện. '
-        'Kế hoạch này là gợi ý để bạn điều chỉnh theo lịch học thực tế.</p></div>',
-        unsafe_allow_html=True,
-    )
-    p1, p2, p3 = st.columns(3)
-    with p1:
-        goal = st.selectbox("Mục tiêu chính", ["Ôn thi tốt nghiệp THPT", "IELTS", "VSTEP", "Củng cố nền tảng"])
-    with p2:
-        days_per_week = st.selectbox("Số buổi mỗi tuần", [3, 4, 5, 6, 7], index=2)
-    with p3:
-        minutes = st.selectbox("Thời lượng mỗi buổi", [20, 30, 45, 60, 90], index=2)
-    focus = st.multiselect(
-        "Nội dung ưu tiên",
-        ["Từ vựng", "Ngữ pháp", "Đọc hiểu", "Nghe", "Viết", "Nói", "Phát âm"],
-        default=["Từ vựng", "Ngữ pháp", "Đọc hiểu"],
-    )
-    if not focus:
-        focus = ["Từ vựng", "Ngữ pháp"]
-    st.caption(f"Khối lượng dự kiến: **{days_per_week * minutes} phút/tuần** · Mục tiêu: **{goal}**")
-    focus_tasks = {
-        "Từ vựng": "Ôn 8–10 từ/cụm từ, tự đặt 3 câu và xem lại từ cũ.",
-        "Ngữ pháp": "Ôn một điểm ngữ pháp, đọc ví dụ và làm 5–8 câu luyện tập.",
-        "Đọc hiểu": "Làm một bài đọc ngắn, gạch từ khóa và giải thích căn cứ của đáp án.",
-        "Nghe": "Nghe một đoạn ngắn hai lần, ghi ý chính và kiểm tra transcript.",
-        "Viết": "Viết một đoạn ngắn, sau đó tự kiểm tra ý, từ vựng và ngữ pháp.",
-        "Nói": "Nói 1–2 phút về một chủ đề quen thuộc, ghi lại 3 ý cần cải thiện.",
-        "Phát âm": "Luyện 5 từ khó, chú ý trọng âm và bắt chước một câu mẫu.",
-    }
-    st.markdown("### Kế hoạch 7 ngày")
-    schedule = []
-    for day in range(1, 8):
-        if day <= days_per_week:
-            topic = focus[(day - 1) % len(focus)]
-            schedule.append((day, topic, focus_tasks[topic]))
-        else:
-            schedule.append((day, "Nghỉ hoặc ôn nhẹ", "Xem lại các lỗi đã gặp; có thể nghỉ nếu bạn cần phục hồi năng lượng."))
-    done = 0
-    for day, topic, task in schedule:
-        with st.container(border=True):
-            c1, c2 = st.columns([1, 8])
-            c1.markdown(f"**Ngày {day}**")
-            c2.markdown(f"**{topic}**  \n{task}")
-            if c2.checkbox("Hoàn thành", key=f"plan_done_{goal}_{days_per_week}_{minutes}_{day}_{topic}"):
-                done += 1
-    st.progress(done / 7, text=f"Đã đánh dấu hoàn thành {done}/7 ngày trong kế hoạch này")
-    st.info("Mẹo: Nếu lịch học bận, hãy giảm thời lượng mỗi buổi thay vì cố học quá sức. Kế hoạch được lưu trong phiên hiện tại của ứng dụng.")
-
-# ==========================================
-# TRANG 5: KHO TÀI LIỆU
+# TRANG 4: KHO TÀI LIỆU
 # ==========================================
 
 elif page == "Kho tài liệu":
@@ -1397,7 +1266,7 @@ elif page == "Kho tài liệu":
         )
 
 # ==========================================
-# TRANG 6: KIỂM DUYỆT
+# TRANG 5: KIỂM DUYỆT
 # ==========================================
 
 else:
@@ -1539,3 +1408,4 @@ else:
             st.rerun()
         except Exception as e:
             st.error(f"File sao lưu không hợp lệ: {e}")
+
