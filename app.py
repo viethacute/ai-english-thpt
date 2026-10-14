@@ -825,10 +825,7 @@ for key, default in {
 
 st.markdown(
     """
-<style>
-
-st.markdown("""
-<style>
+    <style>
 /* ===== E-HERO AI | NAVY BLUE THEME ===== */
 
 :root {
