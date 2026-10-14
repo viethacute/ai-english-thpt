@@ -826,265 +826,211 @@ for key, default in {
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+st.markdown("""
+<style>
+/* ===== E-HERO AI | NAVY BLUE THEME ===== */
 
 :root {
-    --bg: #F8F7FC;
-    --surface: #FFFFFF;
-    --primary: #8B7BC8;
-    --primary-dark: #7160B0;
-    --lavender: #EDE8FA;
-    --ink: #29243A;
-    --muted: #716B82;
-    --line: #E7E2F0;
-    --success: #327A67;
+    --navy: #0B1F3A;
+    --navy-light: #16365C;
+    --blue: #2563EB;
+    --blue-hover: #1D4ED8;
+    --ice: #EFF6FF;
+    --page-bg: #F5F8FC;
+    --card-bg: #FFFFFF;
+    --text: #172B4D;
+    --muted: #64748B;
+    --border: #DCE5F0;
+    --success: #15803D;
 }
 
-html, body, .stApp, [class*="css"] {
-    font-family: 'Be Vietnam Pro', sans-serif;
-}
-
+/* Nền trang */
 .stApp {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--page-bg);
+    color: var(--text);
 }
 
-.block-container {
-    max-width: 1180px;
-    padding: 2rem 2rem 4rem;
+/* Khu vực nội dung */
+.main .block-container {
+    max-width: 1200px;
+    padding: 2rem 2rem 3rem;
 }
 
-[data-testid="stSidebar"] {
-    background: #F1EDFA;
-    border-right: 1px solid var(--line);
-}
-
-[data-testid="stSidebar"] .block-container {
-    padding: 1.5rem 1rem;
-}
-
-/* Tiêu đề và nội dung */
-h1, h2, h3 {
-    color: var(--ink);
-    line-height: 1.45 !important;
-    overflow-wrap: anywhere;
-}
-
-p, li, label, .stMarkdown {
-    line-height: 1.75;
+/* Chữ: hạn chế dính chữ, tràn dòng */
+.stApp,
+.stApp p,
+.stApp li,
+.stApp label,
+.stApp span,
+.stApp div,
+.stApp td,
+.stApp th {
     overflow-wrap: anywhere;
     word-break: normal;
 }
 
-[data-testid="stMarkdownContainer"] {
-    min-width: 0;
+.stMarkdown,
+.stMarkdown p,
+.stMarkdown li {
+    line-height: 1.75;
+    letter-spacing: 0.01em;
 }
 
-[data-testid="stMarkdownContainer"] table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    border-collapse: collapse;
+.stMarkdown p {
+    margin-bottom: 0.8rem;
 }
 
-[data-testid="stMarkdownContainer"] th,
-[data-testid="stMarkdownContainer"] td {
-    padding: 0.65rem 0.8rem;
-    line-height: 1.65;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-/* Khoảng cách các thành phần */
-div[data-testid="stVerticalBlock"] {
-    gap: 1rem;
-}
-
-.page-head {
-    margin: 0 0 1.5rem;
-}
-
-.page-head h1 {
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 700;
+.stMarkdown h1,
+.stMarkdown h2,
+.stMarkdown h3 {
+    color: var(--navy);
     line-height: 1.4;
-    margin-bottom: 0.5rem;
-}
-
-.page-head p {
-    color: var(--muted);
-    max-width: 68ch;
-    margin-top: 0;
-}
-
-/* Thẻ nội dung */
-.step, .doc-row, .flash {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 1.25rem;
-    min-width: 0;
-}
-
-.steps {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-    margin: 1rem 0 1.5rem;
-}
-
-.step b {
-    display: inline-grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    background: var(--lavender);
-    color: var(--primary-dark);
+    letter-spacing: -0.02em;
+    margin-top: 1.1rem;
     margin-bottom: 0.75rem;
 }
 
-.step span {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 0.4rem;
-}
-
-.step small, .doc-row small {
-    color: var(--muted);
-    line-height: 1.7;
-}
-
-/* Chat */
-[data-testid="stChatMessage"] {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 1rem 1.15rem;
-    margin: 0.75rem 0;
-    min-width: 0;
-}
-
-[data-testid="stChatInput"] {
-    border-radius: 18px;
-    border-color: var(--line);
-}
-
-[data-testid="stChatMessage"] img {
-    max-width: 100%;
-}
-
-[data-testid="stChatMessage"] pre {
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-[data-testid="stChatMessage"] code {
+/* Giữ nguyên khoảng trắng và xuống dòng trong nội dung AI */
+[data-testid="stChatMessage"] .stMarkdown,
+[data-testid="stChatMessage"] .stMarkdown p {
+    white-space: normal;
     overflow-wrap: anywhere;
-    white-space: pre-wrap;
+    line-height: 1.8;
+}
+
+/* Thanh sidebar */
+[data-testid="stSidebar"] {
+    background: var(--navy);
+}
+
+[data-testid="stSidebar"] * {
+    color: #F1F5F9;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+    line-height: 1.65;
 }
 
 /* Nút */
 .stButton > button,
 .stDownloadButton > button {
-    border-radius: 12px;
+    border-radius: 10px;
     min-height: 42px;
-    white-space: normal;
-    line-height: 1.5;
     font-weight: 600;
-    border-color: var(--line);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
 }
 
 .stButton > button[kind="primary"],
 .stFormSubmitButton > button[kind="primary"] {
-    background: var(--primary);
+    background: var(--blue);
     color: white;
-    border-color: var(--primary);
+    border: 1px solid var(--blue);
 }
 
-.stButton > button:hover {
-    border-color: var(--primary);
-    color: var(--primary-dark);
+.stButton > button[kind="primary"]:hover,
+.stFormSubmitButton > button[kind="primary"]:hover {
+    background: var(--blue-hover);
+    border-color: var(--blue-hover);
 }
 
-/* Tabs, lựa chọn và thống kê */
-.stTabs [data-baseweb="tab"][aria-selected="true"] {
-    color: var(--primary-dark);
-    border-bottom-color: var(--primary);
-}
-
-[data-testid="stMetric"] {
+/* Ô nhập liệu */
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input,
+.stSelectbox [data-baseweb="select"] {
+    border-radius: 10px;
+    border-color: var(--border);
     background: white;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 1rem;
-    min-width: 0;
 }
 
-[data-testid="stDataFrame"] {
+/* Tập trung vào ô nhập */
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 1px var(--blue);
+}
+
+/* Thẻ và khung nội dung */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: var(--border);
+    border-radius: 14px;
+}
+
+/* Tin nhắn chat */
+[data-testid="stChatMessage"] {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+/* Bảng dữ liệu */
+[data-testid="stDataFrame"],
+[data-testid="stTable"] {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.stTable table,
+[data-testid="stDataFrame"] table {
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
 }
 
-/* Flashcard */
-.flash {
-    padding: 2.5rem 1.5rem;
-    text-align: center;
-}
-
-.flash .w {
-    font-size: clamp(1.5rem, 4vw, 2.3rem);
-    font-weight: 700;
-    color: var(--primary-dark);
+.stTable th,
+.stTable td {
+    padding: 0.7rem;
+    line-height: 1.6;
+    white-space: normal;
     overflow-wrap: anywhere;
 }
 
-.flash .p {
-    color: var(--muted);
-    margin-top: 0.5rem;
+/* Thanh tiến độ */
+.stProgress > div > div > div > div {
+    background: var(--blue);
 }
 
-/* Trạng thái */
-.status {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 99px;
-    background: #E4F3EC;
-    color: var(--success);
-    font-size: 0.82rem;
+/* Liên kết */
+.stApp a {
+    color: var(--blue);
+    font-weight: 500;
 }
 
-.status.warn {
-    background: #FFF1D7;
-    color: #805C17;
+/* Đường phân cách */
+hr {
+    border-color: var(--border);
 }
 
-footer {
-    visibility: hidden;
+/* Thông báo */
+[data-testid="stAlert"] {
+    border-radius: 12px;
+    line-height: 1.7;
 }
 
-@media (max-width: 800px) {
-    .block-container {
-        padding: 1.25rem 1rem 3rem;
-    }
-
-    .steps {
-        grid-template-columns: 1fr;
+/* Giao diện màn hình nhỏ */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding: 1rem 0.85rem 2rem;
     }
 
     [data-testid="stChatMessage"] {
-        padding: 0.85rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .block-container {
-        padding: 1rem 0.75rem 2rem;
+        padding: 0.8rem;
     }
 
-    [data-testid="stMetric"] {
-        padding: 0.7rem;
+    .stMarkdown h1 {
+        font-size: 1.65rem;
+    }
+
+    .stMarkdown h2 {
+        font-size: 1.35rem;
     }
 }
+</style>
+""", unsafe_allow_html=True)
 </style>
 """,
     unsafe_allow_html=True,
