@@ -14,7 +14,7 @@ import time
 import uuid
 import wave
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import streamlit as st
@@ -724,6 +724,79 @@ def generate_quiz(topic, level, n, context):
     ]
 
 
+def normalize_vocab(item):
+    """Bổ sung trường mới cho cả từ vựng cũ."""
+    today = datetime.now().date().isoformat()
+    item.setdefault("level", "B1")
+    item.setdefault("topic", "Chưa phân loại")
+    item.setdefault("known", False)
+    item.setdefault("review_count", 0)
+    item.setdefault("interval", 0)
+    item.setdefault("next_review", today)
+    item.setdefault("created_at", today)
+    return item
+
+
+def add_vocab_item(item, level, topic="Chưa phân loại"):
+    """Thêm từ mới, tránh lưu trùng."""
+    word = item["word"].strip()
+    if not word:
+        return False
+
+    vocab = st.session_state.vocab
+    if any(v["word"].casefold() == word.casefold() for v in vocab):
+        return False
+
+    entry = normalize_vocab(item.copy())
+    entry["word"] = word
+    entry["level"] = level
+    entry["topic"] = topic
+    vocab.append(entry)
+    return True
+
+
+def review_vocab(word, remembered):
+    """Lịch ôn đơn giản: 1, 3, 7, 14 hoặc 30 ngày."""
+    today = datetime.now().date()
+    item = next(
+        (v for v in st.session_state.vocab
+         if v["word"].casefold() == word.casefold()),
+        None,
+    )
+    if item is None:
+        return
+
+    item["review_count"] = item.get("review_count", 0) + 1
+
+    if remembered:
+        old_interval = item.get("interval", 0)
+        next_interval = {
+            0: 1,
+            1: 3,
+            3: 7,
+            7: 14,
+            14: 30,
+        }
+        interval = next_interval.get(old_interval, 30)
+        item["interval"] = interval
+        item["known"] = True
+    else:
+        item["interval"] = 0
+        item["known"] = False
+        interval = 1
+
+    item["next_review"] = (
+        today + timedelta(days=interval)
+    ).isoformat()
+
+
+def due_vocab():
+    today = datetime.now().date().isoformat()
+    return [
+        v for v in st.session_state.vocab
+        if v.get("next_review", today) <= today
+    ]
+
 # ==========================================
 # 6. TRẠNG THÁI PHIÊN
 # ==========================================
@@ -1380,41 +1453,200 @@ elif page == "Luyện đề":
 # TRANG 3: SỔ TỪ VỰNG
 # ==========================================
 
+
 elif page == "Sổ từ vựng":
-    st.markdown("## Sổ từ vựng")
-    vocab = st.session_state.vocab
-    if not vocab:
-        st.info("Sổ đang trống. Trong mục Trò chuyện, bấm 📌 dưới câu trả lời để lưu từ đáng học.")
-    else:
-        tab_card, tab_list = st.tabs(["Thẻ ghi nhớ", "Danh sách"])
-        with tab_card:
-            v = vocab[st.session_state.flash_idx % len(vocab)]
+    st.markdown("## 📚 Sổ từ vựng")
+    st.caption("Lưu từ mới, ôn tập và theo dõi tiến độ ghi nhớ.")
+
+    # Chuẩn hóa dữ liệu từ phiên bản cũ
+    vocab = [
+        normalize_vocab(v)
+        for v in st.session_state.vocab
+    ]
+
+    due = due_vocab()
+    total = len(vocab)
+    known = sum(v.get("known", False) for v in vocab)
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Tổng số từ", total)
+    c2.metric("Đã đánh dấu nhớ", known)
+    c3.metric("Cần ôn hôm nay", len(due))
+
+    tab_review, tab_all, tab_add = st.tabs(
+        ["🎯 Ôn tập", "📖 Tất cả từ", "➕ Thêm từ"]
+    )
+
+    with tab_review:
+        if not vocab:
+            st.info(
+                "Sổ từ vựng đang trống. "
+                "Hãy lưu từ trong mục Trò chuyện hoặc thêm từ mới."
+            )
+        elif not due:
+            st.success(
+                "Bạn đã hoàn thành các từ đến hạn ôn hôm nay!"
+            )
+            st.write(
+                "Bạn có thể xem lại danh sách hoặc thêm từ mới."
+            )
+        else:
+            idx = st.session_state.flash_idx % len(due)
+            item = due[idx]
+
+            st.caption(
+                f"Thẻ {idx + 1}/{len(due)} · "
+                f"{item.get('topic', 'Chưa phân loại')}"
+            )
             st.markdown(
-                f'<div class="flash"><div class="w">{html.escape(v["word"])}</div>'
-                f'<div class="p">{html.escape(v["pos"])}</div></div>',
+                f'<div class="flash">'
+                f'<div class="w">{html.escape(item["word"])}</div>'
+                f'<div class="p">{html.escape(item.get("pos", ""))}'
+                f' · {html.escape(item.get("level", "B1"))}</div>'
+                f'</div>',
                 unsafe_allow_html=True,
             )
+
             with st.expander("Xem nghĩa và ví dụ"):
-                st.markdown(f"**{v['meaning_vi']}**")
-                st.write(v["example"])
-            if st.button("Từ khác", type="primary"):
-                st.session_state.flash_idx = random.randrange(len(vocab))
+                st.markdown(
+                    f"**{html.escape(item['meaning_vi'])}**"
+                )
+                st.write(item.get("example", ""))
+
+            left, right = st.columns(2)
+
+            if left.button(
+                "🔁 Chưa nhớ",
+                use_container_width=True,
+                key=f"forgot_{idx}_{item['word']}",
+            ):
+                review_vocab(item["word"], False)
+                st.session_state.flash_idx = 0
                 st.rerun()
-        with tab_list:
-            st.dataframe(vocab, use_container_width=True, hide_index=True)
+
+            if right.button(
+                "✅ Đã nhớ",
+                type="primary",
+                use_container_width=True,
+                key=f"remember_{idx}_{item['word']}",
+            ):
+                review_vocab(item["word"], True)
+                st.session_state.flash_idx = 0
+                st.rerun()
+
+            if st.button("Bỏ qua thẻ này"):
+                st.session_state.flash_idx = (idx + 1) % len(due)
+                st.rerun()
+
+    with tab_all:
+        if not vocab:
+            st.info("Chưa có từ vựng nào.")
+        else:
+            keyword = st.text_input(
+                "Tìm từ",
+                placeholder="Nhập từ tiếng Anh hoặc nghĩa tiếng Việt...",
+            )
+
+            topics = sorted({
+                v.get("topic", "Chưa phân loại")
+                for v in vocab
+            })
+            selected_topic = st.selectbox(
+                "Chủ đề",
+                ["Tất cả"] + topics,
+            )
+
+            filtered = [
+                v for v in vocab
+                if (
+                    keyword.casefold() in v["word"].casefold()
+                    or keyword.casefold()
+                    in v["meaning_vi"].casefold()
+                )
+                and (
+                    selected_topic == "Tất cả"
+                    or v.get("topic", "Chưa phân loại")
+                    == selected_topic
+                )
+            ]
+
+            st.caption(f"Tìm thấy {len(filtered)} từ.")
+
+            for i, v in enumerate(filtered):
+                with st.expander(
+                    f"{v['word']} · {v.get('pos', '')}"
+                ):
+                    st.write("**Nghĩa:**", v["meaning_vi"])
+                    st.write("**Ví dụ:**", v.get("example", ""))
+                    st.caption(
+                        f"Trình độ: {v.get('level', 'B1')} · "
+                        f"Chủ đề: {v.get('topic', 'Chưa phân loại')} · "
+                        f"Lần ôn: {v.get('review_count', 0)}"
+                    )
+
+                    if st.button(
+                        "Xóa từ này",
+                        key=f"delete_vocab_{i}_{v['word']}",
+                    ):
+                        st.session_state.vocab = [
+                            x for x in st.session_state.vocab
+                            if x["word"].casefold()
+                            != v["word"].casefold()
+                        ]
+                        st.rerun()
+
             buf = io.StringIO()
-            writer = csv.DictWriter(buf, fieldnames=["word", "pos", "meaning_vi", "example"])
+            fields = [
+                "word", "pos", "meaning_vi", "example",
+                "level", "topic", "known",
+                "review_count", "next_review",
+            ]
+            writer = csv.DictWriter(
+                buf, fieldnames=fields, extrasaction="ignore"
+            )
             writer.writeheader()
             writer.writerows(vocab)
-            d1, d2 = st.columns(2)
-            d1.download_button(
-                "Tải về file CSV", buf.getvalue().encode("utf-8-sig"),
-                file_name="so_tu_vung.csv", mime="text/csv", use_container_width=True,
+
+            st.download_button(
+                "⬇️ Xuất sổ từ vựng CSV",
+                buf.getvalue().encode("utf-8-sig"),
+                file_name="so_tu_vung_e_hero.csv",
+                mime="text/csv",
             )
-            if d2.button("Xóa toàn bộ sổ", use_container_width=True):
-                st.session_state.vocab = []
-                st.rerun()
-        st.caption("Sổ chỉ lưu trong phiên hiện tại. Hãy tải CSV về trước khi đóng trình duyệt.")
+
+    with tab_add:
+        with st.form("add_vocab_form"):
+            word = st.text_input("Từ hoặc cụm từ tiếng Anh")
+            pos = st.selectbox(
+                "Từ loại",
+                ["noun", "verb", "adjective", "adverb",
+                 "phrase", "other"],
+            )
+            meaning = st.text_input("Nghĩa tiếng Việt")
+            example = st.text_area("Câu ví dụ")
+            topic = st.text_input(
+                "Chủ đề", value="Chưa phân loại"
+            )
+
+            submitted = st.form_submit_button(
+                "Lưu từ vựng", type="primary"
+            )
+
+        if submitted:
+            if not word.strip() or not meaning.strip():
+                st.warning("Hãy nhập từ và nghĩa.")
+            else:
+                item = {
+                    "word": word.strip(),
+                    "pos": pos,
+                    "meaning_vi": meaning.strip(),
+                    "example": example.strip(),
+                }
+                if add_vocab_item(item, level, topic.strip() or "Chưa phân loại"):
+                    st.success("Đã thêm từ vựng!")
+                    st.rerun()
+                else:
+                    st.warning("Từ này đã có trong sổ.")
 
 # ==========================================
 # TRANG 4: KHO TÀI LIỆU
