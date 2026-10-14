@@ -430,7 +430,7 @@ MODE_LIST = list(MODES)
 SPEAKING_MODES = {"Giao tiếp với Alex", "Speaking IELTS"}
 
 HERO = {
-    "Hỏi đáp kiến thức": ("Hỏi gì về tiếng Anh cũng được", "Từ vựng, ngữ pháp, mẹo làm đề THPT. Nếu có tài liệu của thầy cô, AI sẽ dựa vào đó và ghi rõ nguồn."),
+    "Hỏi đáp kiến thức": ("Trả lời các câu hỏi tiếng Anh", "Từ vựng, ngữ pháp, mẹo làm đề THPT. Nếu có tài liệu của thầy cô, AI sẽ dựa vào đó và ghi rõ nguồn."),
     "Giao tiếp với Alex": ("Nói chuyện với Alex", "Bấm micro và nói. AI chép lại lời bạn, sửa một lỗi mỗi lượt và trả lời bằng giọng nói."),
     "Speaking IELTS": ("Phòng thi IELTS Speaking", "Trả lời từng câu hỏi như thi thật. Sau mỗi câu bạn nhận nhận xét theo 4 tiêu chí và band ước lượng."),
     "Luyện thi VSTEP/THPT": ("Chấm bài viết trong vài giây", "Dán bài viết của bạn vào khung chat. Nhận 5 lỗi quan trọng nhất kèm bản sửa."),
@@ -754,47 +754,263 @@ st.markdown(
     """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
-:root { --ink:#14213d; --signal:#ffd23f; --voice:#0f766e; --line:#dde3ec; --muted:#5b6b85; }
-html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro', system-ui, sans-serif; }
-.block-container { padding-top:2rem; max-width:1100px; }
-footer { visibility:hidden; }
 
-[data-testid="stSidebar"] { border-right:1px solid var(--line); }
-.brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.15rem; color:var(--ink); padding:4px 0 12px; }
-[data-testid="stSidebar"] [role="radiogroup"] label { padding:8px 12px; border-radius:10px; width:100%; }
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#e6f4f1; font-weight:600; }
+:root {
+    --bg: #F8F7FC;
+    --surface: #FFFFFF;
+    --primary: #8B7BC8;
+    --primary-dark: #7160B0;
+    --lavender: #EDE8FA;
+    --ink: #29243A;
+    --muted: #716B82;
+    --line: #E7E2F0;
+    --success: #327A67;
+}
 
-.page-head h1 { margin:0; padding:0; font-size:1.9rem; font-weight:700; color:var(--ink); line-height:1.25; }
-.page-head p { margin:.4rem 0 1.1rem; color:var(--muted); line-height:1.55; max-width:62ch; }
+html, body, .stApp, [class*="css"] {
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
 
-.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:.2rem 0 1rem; }
-.step { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
-.step b { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%;
-  background:var(--ink); color:var(--signal); margin-bottom:8px; font-size:.85rem; }
-.step span { display:block; color:var(--ink); font-weight:600; }
-.step small { color:var(--muted); line-height:1.5; }
+.stApp {
+    background: var(--bg);
+    color: var(--ink);
+}
 
-[data-testid="stPills"] button { border-radius:99px; min-height:44px; font-weight:600; }
-[data-testid="stChatInput"] { border-radius:28px; }
-[data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
-[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
-.stButton > button { border-radius:10px; font-weight:600; min-height:44px; }
+.block-container {
+    max-width: 1180px;
+    padding: 2rem 2rem 4rem;
+}
 
-.doc-row { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 16px; margin-bottom:10px; }
-.doc-row.wait { background:#fffbea; }
-.doc-row small { color:var(--muted); }
+[data-testid="stSidebar"] {
+    background: #F1EDFA;
+    border-right: 1px solid var(--line);
+}
 
-.flash { background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px 28px; text-align:center; }
-.flash .w { font-size:2.2rem; font-weight:700; color:var(--ink); }
-.flash .p { color:var(--muted); margin-top:4px; }
+[data-testid="stSidebar"] .block-container {
+    padding: 1.5rem 1rem;
+}
 
-.status { display:inline-block; padding:3px 10px; border-radius:99px; font-size:.82rem; background:#e6f4f1; color:var(--voice); }
-.status.warn { background:#fff3cd; color:#7a5b00; }
+/* Tiêu đề và nội dung */
+h1, h2, h3 {
+    color: var(--ink);
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere;
+}
 
-@media (max-width:700px) {
-  .block-container { padding:1rem; }
-  .steps { grid-template-columns:1fr; }
-  .page-head h1 { font-size:1.5rem; }
+p, li, label, .stMarkdown {
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+[data-testid="stMarkdownContainer"] {
+    min-width: 0;
+}
+
+[data-testid="stMarkdownContainer"] table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+}
+
+[data-testid="stMarkdownContainer"] th,
+[data-testid="stMarkdownContainer"] td {
+    padding: 0.65rem 0.8rem;
+    line-height: 1.65;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Khoảng cách các thành phần */
+div[data-testid="stVerticalBlock"] {
+    gap: 1rem;
+}
+
+.page-head {
+    margin: 0 0 1.5rem;
+}
+
+.page-head h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.page-head p {
+    color: var(--muted);
+    max-width: 68ch;
+    margin-top: 0;
+}
+
+/* Thẻ nội dung */
+.step, .doc-row, .flash {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 1.25rem;
+    min-width: 0;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.step b {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: var(--lavender);
+    color: var(--primary-dark);
+    margin-bottom: 0.75rem;
+}
+
+.step span {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.step small, .doc-row small {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* Chat */
+[data-testid="stChatMessage"] {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 1rem 1.15rem;
+    margin: 0.75rem 0;
+    min-width: 0;
+}
+
+[data-testid="stChatInput"] {
+    border-radius: 18px;
+    border-color: var(--line);
+}
+
+[data-testid="stChatMessage"] img {
+    max-width: 100%;
+}
+
+[data-testid="stChatMessage"] pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+[data-testid="stChatMessage"] code {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+/* Nút */
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 12px;
+    min-height: 42px;
+    white-space: normal;
+    line-height: 1.5;
+    font-weight: 600;
+    border-color: var(--line);
+}
+
+.stButton > button[kind="primary"],
+.stFormSubmitButton > button[kind="primary"] {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.stButton > button:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+}
+
+/* Tabs, lựa chọn và thống kê */
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    color: var(--primary-dark);
+    border-bottom-color: var(--primary);
+}
+
+[data-testid="stMetric"] {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1rem;
+    min-width: 0;
+}
+
+[data-testid="stDataFrame"] {
+    width: 100%;
+}
+
+/* Flashcard */
+.flash {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.flash .w {
+    font-size: clamp(1.5rem, 4vw, 2.3rem);
+    font-weight: 700;
+    color: var(--primary-dark);
+    overflow-wrap: anywhere;
+}
+
+.flash .p {
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+
+/* Trạng thái */
+.status {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 99px;
+    background: #E4F3EC;
+    color: var(--success);
+    font-size: 0.82rem;
+}
+
+.status.warn {
+    background: #FFF1D7;
+    color: #805C17;
+}
+
+footer {
+    visibility: hidden;
+}
+
+@media (max-width: 800px) {
+    .block-container {
+        padding: 1.25rem 1rem 3rem;
+    }
+
+    .steps {
+        grid-template-columns: 1fr;
+    }
+
+    [data-testid="stChatMessage"] {
+        padding: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .block-container {
+        padding: 1rem 0.75rem 2rem;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 0.7rem;
+    }
 }
 </style>
 """,
