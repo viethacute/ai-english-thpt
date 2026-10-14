@@ -753,83 +753,54 @@ for key, default in {
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
-:root {
-  --ink:#30264a;
-  --lavender:#8b75c9;
-  --lavender-dark:#6f59ad;
-  --lavender-soft:#f1edfb;
-  --lavender-pale:#faf8ff;
-  --line:#e5def3;
-  --muted:#766d8b;
-  --white:#ffffff;
-}
-html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro',system-ui,sans-serif; }
-.stApp { background:var(--lavender-pale); color:var(--ink); }
-.block-container { padding-top:1.6rem; padding-bottom:3rem; max-width:1180px; }
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+:root { --ink:#14213d; --signal:#ffd23f; --voice:#0f766e; --line:#dde3ec; --muted:#5b6b85; }
+html, body, [class*="css"], .stApp { font-family:'Be Vietnam Pro', system-ui, sans-serif; }
+.block-container { padding-top:2rem; max-width:1100px; }
 footer { visibility:hidden; }
-#MainMenu { visibility:hidden; }
 
-/* Sidebar */
-[data-testid="stSidebar"] { background:#f4f0fc; border-right:1px solid var(--line); }
-[data-testid="stSidebar"] > div { padding-top:1.25rem; }
-.brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.18rem; color:var(--ink); padding:5px 0 18px; letter-spacing:-.3px; }
-[data-testid="stSidebar"] [role="radiogroup"] { gap:5px; }
-[data-testid="stSidebar"] [role="radiogroup"] label { padding:9px 12px; border-radius:12px; width:100%; border:1px solid transparent; }
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#e6def8; border-color:#d7c9f2; color:var(--lavender-dark); font-weight:700; }
-[data-testid="stSidebar"] [data-testid="stMetric"] { background:#fff; }
+[data-testid="stSidebar"] { border-right:1px solid var(--line); }
+.brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.15rem; color:var(--ink); padding:4px 0 12px; }
+[data-testid="stSidebar"] [role="radiogroup"] label { padding:8px 12px; border-radius:10px; width:100%; }
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#e6f4f1; font-weight:600; }
 
-/* Page headings and content surfaces */
-.page-head { background:#f0eafb; border:1px solid var(--line); border-radius:20px; padding:24px 26px; margin:10px 0 20px; }
-.page-head h1 { margin:0; padding:0; font-size:1.85rem; font-weight:800; color:var(--ink); line-height:1.28; letter-spacing:-.5px; }
-.page-head p { margin:.55rem 0 0; color:var(--muted); line-height:1.65; max-width:68ch; }
-h1,h2,h3 { color:var(--ink); letter-spacing:-.25px; }
-[data-testid="stVerticalBlockBorderWrapper"] { border-radius:16px; }
-hr { border-color:var(--line); }
+.page-head h1 { margin:0; padding:0; font-size:1.9rem; font-weight:700; color:var(--ink); line-height:1.25; }
+.page-head p { margin:.4rem 0 1.1rem; color:var(--muted); line-height:1.55; max-width:62ch; }
 
-/* Inputs and buttons */
-.stButton > button, .stDownloadButton > button { border-radius:12px; min-height:42px; font-weight:600; border-color:#d9cfee; transition:all .15s ease; }
-.stButton > button[kind="primary"] { background:var(--lavender); border-color:var(--lavender); color:#fff; }
-.stButton > button[kind="primary"]:hover { background:var(--lavender-dark); border-color:var(--lavender-dark); }
-.stButton > button:hover, .stDownloadButton > button:hover { border-color:var(--lavender); color:var(--lavender-dark); }
-.stTextInput input, .stTextArea textarea, .stSelectbox [data-baseweb="select"], .stMultiSelect [data-baseweb="select"] { border-radius:12px; }
-[data-testid="stChatInput"] { border-radius:20px; border-color:#d8ccef; }
-[data-testid="stChatInput"]:focus-within { border-color:var(--lavender); box-shadow:0 0 0 2px #e7dffa; }
-[data-testid="stPills"] { gap:8px; margin:0 0 8px; }
-[data-testid="stPills"] button { border-radius:999px; min-height:42px; font-weight:600; border-color:var(--line); }
-[data-testid="stPills"] button[aria-pressed="true"] { background:var(--lavender) !important; color:white !important; border-color:var(--lavender) !important; }
+.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:.2rem 0 1rem; }
+.step { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.step b { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%;
+  background:var(--ink); color:var(--signal); margin-bottom:8px; font-size:.85rem; }
+.step span { display:block; color:var(--ink); font-weight:600; }
+.step small { color:var(--muted); line-height:1.5; }
 
-/* Chat, metrics, guide cards */
+[data-testid="stPills"] button { border-radius:99px; min-height:44px; font-weight:600; }
+[data-testid="stChatInput"] { border-radius:28px; }
 [data-testid="stChatMessage"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
-[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:15px; padding:13px 15px; }
-[data-testid="stMetricLabel"] { color:var(--muted); }
-.steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:.25rem 0 1.2rem; }
-.step { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; min-width:0; }
-.step b { display:inline-grid; place-items:center; width:29px; height:29px; border-radius:10px; background:var(--lavender-soft); color:var(--lavender-dark); margin-bottom:10px; font-size:.9rem; }
-.step span { display:block; color:var(--ink); font-weight:700; margin-bottom:4px; }
-.step small { color:var(--muted); line-height:1.55; }
-.doc-row { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
-.doc-row.wait { background:#faf7ff; }
-.doc-row small { color:var(--muted); }
-.flash { background:#fff; border:1px solid var(--line); border-radius:22px; padding:38px 28px; text-align:center; box-shadow:0 8px 26px rgba(67,48,110,.05); }
-.flash .w { font-size:clamp(1.8rem,4vw,2.6rem); font-weight:800; color:var(--lavender-dark); overflow-wrap:anywhere; }
-.flash .p { color:var(--muted); margin-top:8px; }
-.status { display:inline-block; padding:5px 11px; border-radius:99px; font-size:.82rem; background:#e9e2fa; color:var(--lavender-dark); font-weight:600; }
-.status.warn { background:#fff1d9; color:#855c13; }
-[data-testid="stAlert"] { border-radius:14px; }
-[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.stButton > button { border-radius:10px; font-weight:600; min-height:44px; }
 
-@media (max-width:800px) {
-  .block-container { padding:1rem 1rem 2rem; }
+.doc-row { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 16px; margin-bottom:10px; }
+.doc-row.wait { background:#fffbea; }
+.doc-row small { color:var(--muted); }
+
+.flash { background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px 28px; text-align:center; }
+.flash .w { font-size:2.2rem; font-weight:700; color:var(--ink); }
+.flash .p { color:var(--muted); margin-top:4px; }
+
+.status { display:inline-block; padding:3px 10px; border-radius:99px; font-size:.82rem; background:#e6f4f1; color:var(--voice); }
+.status.warn { background:#fff3cd; color:#7a5b00; }
+
+@media (max-width:700px) {
+  .block-container { padding:1rem; }
   .steps { grid-template-columns:1fr; }
-  .page-head { padding:19px; border-radius:16px; }
   .page-head h1 { font-size:1.5rem; }
-  [data-testid="stPills"] { flex-wrap:wrap; }
 }
 </style>
 """,
     unsafe_allow_html=True,
 )
+
 
 def on_mode_change():
     picked = st.session_state.get("mode_pick") or MODE_LIST[0]
@@ -847,8 +818,8 @@ def transcript_markdown():
 with st.sidebar:
     st.markdown(
         '<div class="brand"><svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true">'
-        '<rect width="34" height="34" rx="9" fill="#8b75c9"/>'
-        '<path d="M9 20v-6M14 24V10M19 21v-8M24 19v-4" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>'
+        '<rect width="34" height="34" rx="9" fill="#14213d"/>'
+        '<path d="M9 20v-6M14 24V10M19 21v-8M24 19v-4" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>'
         '</svg>E-HERO AI</div>',
         unsafe_allow_html=True,
     )
@@ -1194,61 +1165,40 @@ elif page == "Luyện đề":
 # ==========================================
 
 elif page == "Sổ từ vựng":
-    st.markdown(
-        '<div class="page-head"><h1>📚 Sổ từ vựng</h1>'
-        '<p>Lưu lại từ mới, ôn bằng thẻ ghi nhớ và tải danh sách về để học tiếp.</p></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("## Sổ từ vựng")
     vocab = st.session_state.vocab
     if not vocab:
         st.info("Sổ đang trống. Trong mục Trò chuyện, bấm 📌 dưới câu trả lời để lưu từ đáng học.")
     else:
-        m1, m2 = st.columns(2)
-        m1.metric("Tổng số từ", len(vocab))
-        m2.metric("Cách ôn", "Thẻ ghi nhớ + danh sách")
-        tab_card, tab_list = st.tabs(["🃏 Thẻ ghi nhớ", "📖 Danh sách từ"])
+        tab_card, tab_list = st.tabs(["Thẻ ghi nhớ", "Danh sách"])
         with tab_card:
-            idx = st.session_state.flash_idx % len(vocab)
-            v = vocab[idx]
-            st.caption(f"Thẻ {idx + 1} / {len(vocab)}")
+            v = vocab[st.session_state.flash_idx % len(vocab)]
             st.markdown(
-                f'<div class="flash"><div class="w">{html.escape(str(v.get("word", "")))}</div>'
-                f'<div class="p">{html.escape(str(v.get("pos", "")))}</div></div>',
+                f'<div class="flash"><div class="w">{html.escape(v["word"])}</div>'
+                f'<div class="p">{html.escape(v["pos"])}</div></div>',
                 unsafe_allow_html=True,
             )
-            with st.expander("Hiện nghĩa và ví dụ"):
-                st.markdown(f"**{html.escape(str(v.get('meaning_vi', 'Chưa có nghĩa')))}**")
-                st.write(v.get("example", "Chưa có ví dụ."))
-            prev_col, next_col = st.columns(2)
-            if prev_col.button("← Từ trước", use_container_width=True):
-                st.session_state.flash_idx = (idx - 1) % len(vocab)
-                st.rerun()
-            if next_col.button("Từ tiếp theo →", type="primary", use_container_width=True):
-                st.session_state.flash_idx = (idx + 1) % len(vocab)
+            with st.expander("Xem nghĩa và ví dụ"):
+                st.markdown(f"**{v['meaning_vi']}**")
+                st.write(v["example"])
+            if st.button("Từ khác", type="primary"):
+                st.session_state.flash_idx = random.randrange(len(vocab))
                 st.rerun()
         with tab_list:
-            search_word = st.text_input("🔎 Tìm từ vựng", placeholder="Nhập từ tiếng Anh hoặc nghĩa tiếng Việt...")
-            filtered_vocab = [
-                item for item in vocab
-                if search_word.strip().lower() in " ".join(str(item.get(k, "")) for k in ("word", "pos", "meaning_vi", "example")).lower()
-            ]
-            st.caption(f"Hiển thị {len(filtered_vocab)} / {len(vocab)} từ")
-            st.dataframe(filtered_vocab, use_container_width=True, hide_index=True)
+            st.dataframe(vocab, use_container_width=True, hide_index=True)
             buf = io.StringIO()
-            fields = ["word", "pos", "meaning_vi", "example"]
-            writer = csv.DictWriter(buf, fieldnames=fields, extrasaction="ignore")
+            writer = csv.DictWriter(buf, fieldnames=["word", "pos", "meaning_vi", "example"])
             writer.writeheader()
-            writer.writerows(filtered_vocab)
+            writer.writerows(vocab)
             d1, d2 = st.columns(2)
             d1.download_button(
-                "⬇ Tải danh sách CSV", buf.getvalue().encode("utf-8-sig"),
+                "Tải về file CSV", buf.getvalue().encode("utf-8-sig"),
                 file_name="so_tu_vung.csv", mime="text/csv", use_container_width=True,
             )
             if d2.button("Xóa toàn bộ sổ", use_container_width=True):
                 st.session_state.vocab = []
-                st.session_state.flash_idx = 0
                 st.rerun()
-        st.caption("Lưu ý: hiện sổ từ vựng lưu trong phiên hiện tại. Tải CSV trước khi đóng hoặc tải lại ứng dụng.")
+        st.caption("Sổ chỉ lưu trong phiên hiện tại. Hãy tải CSV về trước khi đóng trình duyệt.")
 
 # ==========================================
 # TRANG 4: KHO TÀI LIỆU
